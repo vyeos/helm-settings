@@ -1,0 +1,9 @@
+<!doctype html>
+<html lang="en"><head><meta charset="utf-8"><meta name="viewport" content="width=device-width,initial-scale=1"><title>Helm — Release candidate evidence</title><link rel="stylesheet" href="assets/style.css"></head>
+<body><header><div class="eyebrow">Helm 1.0</div><h1>Release-candidate evidence</h1><p class="muted">M11 reproducibility and live-session gate · 23 August 2026</p><nav><a href="index.html">Overview</a><a href="release.html">Release</a><a href="qualification.html">Qualification</a></nav></header>
+<main>
+<section><h2>Reproducibility</h2><p><code>scripts/reproducible-build.sh</code> exports the committed tree into two different directories, fixes <code>SOURCE_DATE_EPOCH</code>, remaps build paths, performs frozen optimized builds, and requires byte-identical executables. It prints SHA-256 evidence for both outputs.</p></section>
+<section><h2>Package staging</h2><p><code>scripts/stage-package.sh</code> recreates the Arch install layout in an isolated destination, validates the desktop and AppStream records, executes the staged binary, and inventories every installed file.</p></section>
+<section><h2>Clean-session soak</h2><p>The acceptance binary runs with isolated HOME and XDG directories. It applies and undoes a multi-file profile, inspects legacy configuration without mutation, checks versioned JSON output, and proves rejected input creates no Helm state. The native GUI additionally launches in the target Hyprland 0.56.2 session.</p></section>
+<section><h2>Release gate</h2><p><code>scripts/release-gate.sh</code> is the single local entry point for formatting, linting, tests, dependency policy, optimized compilation, fuzz-target compilation, desktop metadata, Arch template syntax, and local HTML-link integrity.</p></section>
+</main><footer><a href="index.html">Helm specification</a></footer></body></html>

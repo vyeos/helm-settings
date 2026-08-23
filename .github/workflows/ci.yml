@@ -42,19 +42,4 @@ jobs:
     steps:
       - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Verify local documentation links
-        run: |
-          python3 - <<'PY'
-          from html.parser import HTMLParser
-          from pathlib import Path
-          class Links(HTMLParser):
-              def __init__(self): super().__init__(); self.links=[]
-              def handle_starttag(self, tag, attrs):
-                  if tag in {'a','link'}:
-                      self.links += [v for k,v in attrs if k in {'href'}]
-          for page in list(Path('docs').rglob('*.html')) + [Path('README.html')]:
-              parser=Links(); parser.feed(page.read_text())
-              for link in parser.links:
-                  if '://' not in link and not link.startswith(('#','mailto:')):
-                      target=(page.parent/link.split('#')[0]).resolve()
-                      assert target.exists(), f'{page}: missing {link}'
-          PY
+        run: python3 scripts/check-html-links.py
