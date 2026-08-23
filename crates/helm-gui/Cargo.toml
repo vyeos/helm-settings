@@ -13,6 +13,7 @@ helm-adapter-applications = { path = "../../adapters/applications" }
 helm-adapter-bars = { path = "../../adapters/bars" }
 helm-adapter-hyprland = { path = "../../adapters/hyprland" }
 helm-transaction = { path = "../helm-transaction" }
+helm-plugin-host = { path = "../helm-plugin-host" }
 gtk.workspace = true
 adw.workspace = true
 glib.workspace = true

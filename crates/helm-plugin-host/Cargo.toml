@@ -1,14 +1,19 @@
 [package]
-name = "helm-settings-sdk"
+name = "helm-plugin-host"
 version.workspace = true
 edition.workspace = true
 rust-version.workspace = true
-license = "MIT OR Apache-2.0"
+license.workspace = true
 repository.workspace = true
 
 [dependencies]
 helm-plugin-protocol = { path = "../helm-plugin-protocol" }
+serde.workspace = true
 serde_json.workspace = true
+thiserror.workspace = true
+
+[dev-dependencies]
+tempfile.workspace = true
 
 [lints]
 workspace = true

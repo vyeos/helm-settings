@@ -96,12 +96,7 @@ fn build_window(application: &adw::Application) {
         &["profiles"],
     );
     add_history_page(&stack);
-    add_placeholder_page(
-        &stack,
-        "plugins",
-        "Plugins",
-        "Installed and sandboxed extensions",
-    );
+    add_plugins_page(&stack);
     add_diagnostics_page(&stack, &report);
 
     configure_search(&search, &stack);
@@ -198,11 +193,6 @@ fn add_catalog_page(stack: &gtk::Stack, name: &str, title: &str, subtitle: &str,
         );
     }
     content.append(&list);
-    stack.add_titled(&page, Some(name), title);
-}
-
-fn add_placeholder_page(stack: &gtk::Stack, name: &str, title: &str, subtitle: &str) {
-    let (page, _) = page(title, subtitle);
     stack.add_titled(&page, Some(name), title);
 }
 
@@ -337,6 +327,44 @@ fn add_history_page(stack: &gtk::Stack) {
     }
     content.append(&list);
     stack.add_titled(&page, Some("history"), "History");
+}
+
+fn add_plugins_page(stack: &gtk::Stack) {
+    let (page, content) = page("Plugins", "Installed, isolated, declarative extensions");
+    let list = gtk::ListBox::builder()
+        .selection_mode(gtk::SelectionMode::None)
+        .css_classes(["boxed-list"])
+        .build();
+    if let Ok(paths) = XdgPaths::from_environment() {
+        let root = paths.data_home.join("helm-settings/plugins");
+        let plugins = helm_plugin_host::discover(&root, false);
+        if plugins.is_empty() {
+            list.append(
+                &adw::ActionRow::builder()
+                    .title("No plugins installed")
+                    .subtitle("Third-party code remains disabled until explicitly installed.")
+                    .build(),
+            );
+        }
+        for plugin in plugins {
+            match plugin {
+                Ok(plugin) => list.append(
+                    &adw::ActionRow::builder()
+                        .title(glib::markup_escape_text(&plugin.manifest.name))
+                        .subtitle("Available through the Bubblewrap host")
+                        .build(),
+                ),
+                Err(error) => list.append(
+                    &adw::ActionRow::builder()
+                        .title("Blocked plugin")
+                        .subtitle(glib::markup_escape_text(&error.to_string()))
+                        .build(),
+                ),
+            }
+        }
+    }
+    content.append(&list);
+    stack.add_titled(&page, Some("plugins"), "Plugins");
 }
 
 fn add_diagnostics_page(stack: &gtk::Stack, report: &helm_core::model::EnvironmentReport) {

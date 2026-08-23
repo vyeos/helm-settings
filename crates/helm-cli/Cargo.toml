@@ -14,6 +14,7 @@ helm-adapter-bars = { path = "../../adapters/bars" }
 helm-adapter-desktop = { path = "../../adapters/desktop" }
 helm-adapter-hyprland = { path = "../../adapters/hyprland" }
 helm-transaction = { path = "../helm-transaction" }
+helm-plugin-host = { path = "../helm-plugin-host" }
 serde.workspace = true
 serde_json.workspace = true
 toml_edit.workspace = true

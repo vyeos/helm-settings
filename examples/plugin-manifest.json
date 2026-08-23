@@ -1,0 +1,7 @@
+{
+  "schema_version": 1,
+  "id": "io.github.vyeos.HelmExample",
+  "name": "Helm SDK Example",
+  "executable": "helm_example_plugin",
+  "developer_unsigned": true
+}

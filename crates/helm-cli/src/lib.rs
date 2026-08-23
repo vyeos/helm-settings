@@ -68,6 +68,11 @@ enum Command {
         #[command(subcommand)]
         command: ProfilesCommand,
     },
+    /// Discover and probe sandboxed plugins.
+    Plugins {
+        #[command(subcommand)]
+        command: PluginsCommand,
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -114,6 +119,12 @@ enum BarsCommand {
 enum ProfilesCommand {
     Validate { path: std::path::PathBuf },
     Apply { path: std::path::PathBuf },
+}
+
+#[derive(Debug, Subcommand)]
+enum PluginsCommand {
+    List,
+    Probe { plugin_id: String },
 }
 
 #[derive(Serialize)]
@@ -204,6 +215,81 @@ where
         Command::Applications { command } => run_applications(command, cli.output, output),
         Command::Bars { command } => run_bars(command, cli.output, output),
         Command::Profiles { command } => run_profiles(&command, cli.output, output),
+        Command::Plugins { command } => run_plugins(&command, cli.output, output),
+    }
+}
+
+fn run_plugins(
+    command: &PluginsCommand,
+    format: OutputFormat,
+    output: &mut impl Write,
+) -> Result<(), String> {
+    let paths = XdgPaths::from_environment().map_err(str::to_owned)?;
+    let root = paths.data_home.join("helm-settings/plugins");
+    let developer_mode =
+        std::env::var_os("HELM_SETTINGS_DEVELOPER_MODE").is_some_and(|value| value == "1");
+    let discovered = helm_plugin_host::discover(&root, developer_mode);
+    match command {
+        PluginsCommand::List => {
+            let records = discovered
+                .iter()
+                .map(|plugin| match plugin {
+                    Ok(plugin) => serde_json::json!({
+                        "id": plugin.manifest.id,
+                        "name": plugin.manifest.name,
+                        "available": true,
+                        "developer_unsigned": plugin.manifest.developer_unsigned,
+                    }),
+                    Err(error) => serde_json::json!({
+                        "available": false,
+                        "error": error.to_string(),
+                    }),
+                })
+                .collect::<Vec<_>>();
+            write_value(format, output, &records, || {
+                if records.is_empty() {
+                    "No plugins installed\n".into()
+                } else {
+                    records.iter().fold(String::new(), |mut text, record| {
+                        writeln!(
+                            text,
+                            "{}\t{}",
+                            record
+                                .get("id")
+                                .and_then(|id| id.as_str())
+                                .unwrap_or("invalid"),
+                            if record["available"] == true {
+                                "available"
+                            } else {
+                                "blocked"
+                            }
+                        )
+                        .expect("writing to a String cannot fail");
+                        text
+                    })
+                }
+            })
+        }
+        PluginsCommand::Probe { plugin_id } => {
+            let plugin = discovered
+                .into_iter()
+                .filter_map(Result::ok)
+                .find(|plugin| plugin.manifest.id == *plugin_id)
+                .ok_or_else(|| format!("plugin `{plugin_id}` is not available"))?;
+            let initialized = helm_plugin_host::probe(
+                &plugin,
+                env!("CARGO_PKG_VERSION"),
+                std::time::Duration::from_secs(3),
+            )
+            .map_err(|error| error.to_string())?;
+            write_value(format, output, &initialized, || {
+                format!(
+                    "{}: {} declarative pages\n",
+                    initialized.plugin_name,
+                    initialized.pages.len()
+                )
+            })
+        }
     }
 }
 
