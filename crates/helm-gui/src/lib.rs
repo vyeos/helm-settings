@@ -5,6 +5,7 @@
 use adw::prelude::*;
 use gtk::gio;
 use helm_adapter_applications::{alacritty, theme, yazi};
+use helm_adapter_bars::{quickshell, waybar};
 use helm_adapter_hyprland::{HyprlandRuntime, ProcessRuntime};
 use helm_core::{DiscoveryService, SystemProbe, XdgPaths, foundation_catalog};
 use helm_transaction::Engine;
@@ -279,6 +280,20 @@ fn add_applications_page(stack: &gtk::Stack) {
                         .build(),
                 );
             }
+            let waybar_status = format!("{:?}", waybar::detect(&paths.config_home));
+            list.append(
+                &adw::ActionRow::builder()
+                    .title("Waybar")
+                    .subtitle(glib::markup_escape_text(&waybar_status))
+                    .build(),
+            );
+            let quickshell_status = format!("{:?}", quickshell::detect(&paths.config_home));
+            list.append(
+                &adw::ActionRow::builder()
+                    .title("Quickshell")
+                    .subtitle(glib::markup_escape_text(&quickshell_status))
+                    .build(),
+            );
         }
         Err(error) => list.append(
             &adw::ActionRow::builder()

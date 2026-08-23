@@ -9,6 +9,7 @@ use std::{
 
 use clap::{Parser, Subcommand, ValueEnum};
 use helm_adapter_applications::{alacritty, theme, yazi};
+use helm_adapter_bars::{Layout as BarLayout, quickshell, waybar};
 use helm_adapter_hyprland::{HyprlandRuntime, ProcessRuntime, detect_generation};
 use helm_core::{DiscoveryService, SystemProbe, XdgPaths, foundation_catalog};
 use helm_transaction::{Engine, FileChange, Fingerprint, TransactionPlan};
@@ -56,6 +57,11 @@ enum Command {
         #[command(subcommand)]
         command: ApplicationsCommand,
     },
+    /// Inspect and configure managed bar integrations.
+    Bars {
+        #[command(subcommand)]
+        command: BarsCommand,
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -89,6 +95,13 @@ enum ApplicationsCommand {
     AlacrittyTheme { theme_id: String },
     YaziFlavors,
     YaziFlavor { flavor_id: String },
+}
+
+#[derive(Clone, Copy, Debug, Subcommand)]
+enum BarsCommand {
+    Status,
+    ApplyWaybar,
+    ApplyQuickshell,
 }
 
 #[derive(Serialize)]
@@ -177,7 +190,89 @@ where
         }
         Command::Hyprland { command } => run_hyprland(command, cli.output, output),
         Command::Applications { command } => run_applications(command, cli.output, output),
+        Command::Bars { command } => run_bars(command, cli.output, output),
     }
+}
+
+fn run_bars(
+    command: BarsCommand,
+    format: OutputFormat,
+    output: &mut impl Write,
+) -> Result<(), String> {
+    let paths = XdgPaths::from_environment().map_err(str::to_owned)?;
+    match command {
+        BarsCommand::Status => {
+            let status = serde_json::json!({
+                "waybar": waybar::detect(&paths.config_home),
+                "quickshell": quickshell::detect(&paths.config_home),
+            });
+            write_value(format, output, &status, || {
+                format!(
+                    "Waybar: {:?}\nQuickshell: {:?}\n",
+                    waybar::detect(&paths.config_home),
+                    quickshell::detect(&paths.config_home)
+                )
+            })
+        }
+        BarsCommand::ApplyWaybar => {
+            let theme = theme::builtins().remove(0);
+            let plan = waybar::plan(&paths.config_home, &BarLayout::default(), &theme)?;
+            let config_path = plan.config_path.clone();
+            let transaction = TransactionPlan {
+                summary: "Create managed Waybar configuration".into(),
+                changes: vec![
+                    write_change(&plan.config_path, plan.config.into_bytes())?,
+                    write_change(&plan.style_path, plan.style.into_bytes())?,
+                ],
+            };
+            let result = default_engine()?
+                .apply(&transaction, || validate_managed_waybar(&config_path))
+                .map_err(|error| error.to_string())?;
+            write_value(format, output, &result, || {
+                format!(
+                    "Created managed Waybar config as transaction {}\nRun: waybar -c {} -s {}\n",
+                    result.id,
+                    config_path.display(),
+                    config_path.with_file_name("style.css").display()
+                )
+            })
+        }
+        BarsCommand::ApplyQuickshell => {
+            let theme = theme::builtins().remove(0);
+            let plan = quickshell::plan(&paths.config_home, &BarLayout::default(), &theme)?;
+            let shell_path = plan.shell_path.clone();
+            let expected = plan.shell.clone();
+            let transaction = TransactionPlan {
+                summary: "Create cooperative Quickshell configuration".into(),
+                changes: vec![write_change(&plan.shell_path, plan.shell.into_bytes())?],
+            };
+            let result = default_engine()?
+                .apply(&transaction, || {
+                    let actual = std::fs::read_to_string(&shell_path).map_err(|error| {
+                        format!("cannot verify {}: {error}", shell_path.display())
+                    })?;
+                    (actual == expected)
+                        .then_some(())
+                        .ok_or_else(|| "generated Quickshell file changed during apply".into())
+                })
+                .map_err(|error| error.to_string())?;
+            write_value(format, output, &result, || {
+                format!(
+                    "Created cooperative Quickshell config as transaction {}\nRun: quickshell --config helm-settings\n",
+                    result.id
+                )
+            })
+        }
+    }
+}
+
+fn validate_managed_waybar(path: &std::path::Path) -> Result<(), String> {
+    let source = std::fs::read_to_string(path)
+        .map_err(|error| format!("cannot verify {}: {error}", path.display()))?;
+    let json = source.lines().skip(1).collect::<Vec<_>>().join("\n");
+    serde_json::from_str::<serde_json::Value>(&json)
+        .map(|_| ())
+        .map_err(|error| format!("invalid managed Waybar JSONC: {error}"))
 }
 
 fn run_applications(
