@@ -729,6 +729,42 @@ mod tests {
     }
 
     #[test]
+    fn multi_file_verification_failure_restores_every_target() {
+        let (_temporary, config, engine) = harness();
+        let first = config.join("first.conf");
+        let second = config.join("second.conf");
+        fs::write(&first, b"first-before").expect("first fixture");
+        fs::write(&second, b"second-before").expect("second fixture");
+        let result = engine.apply(
+            &TransactionPlan {
+                summary: "fault after all writes".into(),
+                changes: vec![
+                    FileChange::write(
+                        &first,
+                        Some(Fingerprint::bytes(b"first-before")),
+                        b"first-after".to_vec(),
+                    ),
+                    FileChange::write(
+                        &second,
+                        Some(Fingerprint::bytes(b"second-before")),
+                        b"second-after".to_vec(),
+                    ),
+                ],
+            },
+            || Err("injected runtime verification failure".into()),
+        );
+        assert!(matches!(result, Err(Error::Verification(_))));
+        assert_eq!(fs::read(&first).expect("first restored"), b"first-before");
+        assert_eq!(
+            fs::read(&second).expect("second restored"),
+            b"second-before"
+        );
+        let entry = &engine.history(1).expect("history")[0];
+        assert_eq!(entry.state, TransactionState::RolledBack);
+        assert_eq!(entry.change_count, 2);
+    }
+
+    #[test]
     fn undo_is_a_new_committed_transaction() {
         let (_temporary, config, engine) = harness();
         let target = config.join("app.toml");

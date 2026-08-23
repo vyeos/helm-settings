@@ -666,7 +666,12 @@ fn run_hyprland(
 
 fn default_engine() -> Result<Engine, String> {
     let paths = XdgPaths::from_environment().map_err(str::to_owned)?;
-    Engine::open(paths.helm_state(), paths.writable_roots()).map_err(|error| error.to_string())
+    let roots = paths.writable_roots();
+    for root in &roots {
+        std::fs::create_dir_all(root)
+            .map_err(|error| format!("cannot create {}: {error}", root.display()))?;
+    }
+    Engine::open(paths.helm_state(), roots).map_err(|error| error.to_string())
 }
 
 fn write_value<T: Serialize>(

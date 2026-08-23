@@ -304,7 +304,7 @@ fn add_history_page(stack: &gtk::Stack) {
         .css_classes(["boxed-list"])
         .build();
     if let Ok(paths) = XdgPaths::from_environment()
-        && let Ok(engine) = Engine::open(paths.helm_state(), paths.writable_roots())
+        && let Some(engine) = open_engine(&paths)
         && let Ok(history) = engine.history(100)
     {
         for entry in history {
@@ -327,6 +327,14 @@ fn add_history_page(stack: &gtk::Stack) {
     }
     content.append(&list);
     stack.add_titled(&page, Some("history"), "History");
+}
+
+fn open_engine(paths: &XdgPaths) -> Option<Engine> {
+    let roots = paths.writable_roots();
+    for root in &roots {
+        std::fs::create_dir_all(root).ok()?;
+    }
+    Engine::open(paths.helm_state(), roots).ok()
 }
 
 fn add_plugins_page(stack: &gtk::Stack) {

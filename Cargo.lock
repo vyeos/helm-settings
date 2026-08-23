@@ -728,6 +728,8 @@ version = "0.9.0"
 dependencies = [
  "helm-cli",
  "helm-gui",
+ "serde_json",
+ "tempfile",
 ]
 
 [[package]]
