@@ -8,6 +8,8 @@
   <meta property="og:title" content="Helm — steer your Hyprland desktop">
   <meta property="og:description" content="One native interface for settings that remain yours. Verified changes, exact rollback, and no daemon.">
   <meta property="og:type" content="website">
+  <meta property="og:url" content="https://helm-settings.vercel.app/">
+  <link rel="canonical" href="https://helm-settings.vercel.app/">
   <title>Helm — Safe settings for Hyprland</title>
   <link rel="icon" href="../data/icons/hicolor/scalable/apps/io.github.vyeos.HelmSettings.svg" type="image/svg+xml">
   <link rel="stylesheet" href="styles.css">
@@ -165,13 +167,13 @@
         <details class="repo-setup" id="repository-setup" open>
           <summary>One-time repository setup</summary>
           <p>Import and locally trust the published release key:</p>
-          <pre><code>curl -LO https://vyeos.github.io/helm-settings/helm-release-signing-key.asc
+          <pre><code>curl -LO https://helm-settings.vercel.app/helm-release-signing-key.asc
 sudo pacman-key --add helm-release-signing-key.asc
 sudo pacman-key --lsign-key F65AE51D27C02E4B</code></pre>
           <p>Add this repository to <code>/etc/pacman.conf</code>, then run a full system refresh:</p>
           <pre><code>[helm]
 SigLevel = Required DatabaseOptional
-Server = https://vyeos.github.io/helm-settings/repo/$arch
+Server = https://helm-settings.vercel.app/repo/$arch
 
 sudo pacman -Syu</code></pre>
         </details>
