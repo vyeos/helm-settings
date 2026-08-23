@@ -8,6 +8,7 @@ use std::{
 };
 
 use clap::{Parser, Subcommand, ValueEnum};
+use helm_adapter_hyprland::{HyprlandRuntime, ProcessRuntime, detect_generation};
 use helm_core::{DiscoveryService, SystemProbe, XdgPaths, foundation_catalog};
 use helm_transaction::Engine;
 use serde::Serialize;
@@ -44,6 +45,11 @@ enum Command {
         #[command(subcommand)]
         command: HistoryCommand,
     },
+    /// Inspect the active Hyprland adapter without mutating configuration.
+    Hyprland {
+        #[command(subcommand)]
+        command: HyprlandCommand,
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -60,6 +66,14 @@ enum HistoryCommand {
     },
     /// Restore a committed transaction as a new transaction.
     Undo { transaction_id: String },
+}
+
+#[derive(Clone, Copy, Debug, Subcommand)]
+enum HyprlandCommand {
+    Options,
+    Displays,
+    Bindings,
+    ConfigStatus,
 }
 
 #[derive(Serialize)]
@@ -145,6 +159,55 @@ where
                     })
                 }
             }
+        }
+        Command::Hyprland { command } => run_hyprland(command, cli.output, output),
+    }
+}
+
+fn run_hyprland(
+    command: HyprlandCommand,
+    format: OutputFormat,
+    output: &mut impl Write,
+) -> Result<(), String> {
+    let runtime = ProcessRuntime;
+    match command {
+        HyprlandCommand::Options => {
+            let settings = runtime
+                .descriptions()
+                .map_err(|error| error.to_string())?
+                .settings;
+            write_value(format, output, &settings, || {
+                format!("{} curated settings available\n", settings.len())
+            })
+        }
+        HyprlandCommand::Displays => {
+            let displays = runtime.displays().map_err(|error| error.to_string())?;
+            write_value(format, output, &displays, || {
+                displays.iter().fold(String::new(), |mut text, display| {
+                    writeln!(
+                        text,
+                        "{}\t{}x{}@{:.2}\tscale {}",
+                        display.name,
+                        display.width,
+                        display.height,
+                        display.refresh_rate,
+                        display.scale
+                    )
+                    .expect("writing to a String cannot fail");
+                    text
+                })
+            })
+        }
+        HyprlandCommand::Bindings => {
+            let bindings = runtime.bindings().map_err(|error| error.to_string())?;
+            write_value(format, output, &bindings, || {
+                format!("{} active bindings\n", bindings.len())
+            })
+        }
+        HyprlandCommand::ConfigStatus => {
+            let paths = XdgPaths::from_environment().map_err(str::to_owned)?;
+            let generation = detect_generation(&paths.config_home.join("hypr"));
+            write_value(format, output, &generation, || format!("{generation:?}\n"))
         }
     }
 }

@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
 members = [
+  "adapters/hyprland",
   "crates/helm-model",
   "crates/helm-core",
   "crates/helm-transaction",
@@ -12,7 +13,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.3.0"
+version = "0.4.0"
 edition = "2024"
 rust-version = "1.97"
 authors = ["vyeos <rudranpatel0980@gmail.com>"]

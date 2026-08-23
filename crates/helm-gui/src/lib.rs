@@ -4,6 +4,7 @@
 
 use adw::prelude::*;
 use gtk::gio;
+use helm_adapter_hyprland::{HyprlandRuntime, ProcessRuntime};
 use helm_core::{DiscoveryService, SystemProbe, XdgPaths, foundation_catalog};
 use helm_transaction::Engine;
 
@@ -52,13 +53,15 @@ fn build_window(application: &adw::Application) {
         .build();
     for component in &report.components {
         let row = adw::ActionRow::builder()
-            .title(&component.display_name)
-            .subtitle(component.version.as_deref().unwrap_or_else(|| {
-                component
-                    .notes
-                    .first()
-                    .map_or("Not detected", String::as_str)
-            }))
+            .title(glib::markup_escape_text(&component.display_name))
+            .subtitle(glib::markup_escape_text(
+                component.version.as_deref().unwrap_or_else(|| {
+                    component
+                        .notes
+                        .first()
+                        .map_or("Not detected", String::as_str)
+                }),
+            ))
             .build();
         let status = gtk::Label::new(Some(&format!("{:?}", component.availability)));
         status.add_css_class(
@@ -81,13 +84,7 @@ fn build_window(application: &adw::Application) {
         "Themes and wallpaper",
         &["appearance", "wallpaper"],
     );
-    add_catalog_page(
-        &stack,
-        "desktop",
-        "Desktop",
-        "Hyprland, displays, keybindings, startup, defaults and window rules",
-        &["desktop", "displays", "keybindings"],
-    );
+    add_desktop_page(&stack);
     add_catalog_page(
         &stack,
         "applications",
@@ -141,8 +138,8 @@ fn configure_search(search: &gtk::SearchEntry, stack: &gtk::Stack) {
         }) {
             search_results.append(
                 &adw::ActionRow::builder()
-                    .title(&setting.label)
-                    .subtitle(&setting.description)
+                    .title(glib::markup_escape_text(&setting.label))
+                    .subtitle(glib::markup_escape_text(&setting.description))
                     .build(),
             );
         }
@@ -190,8 +187,8 @@ fn add_catalog_page(stack: &gtk::Stack, name: &str, title: &str, subtitle: &str,
     {
         list.append(
             &adw::ActionRow::builder()
-                .title(&setting.label)
-                .subtitle(&setting.description)
+                .title(glib::markup_escape_text(&setting.label))
+                .subtitle(glib::markup_escape_text(&setting.description))
                 .build(),
         );
     }
@@ -212,6 +209,41 @@ fn add_placeholder_page(stack: &gtk::Stack, name: &str, title: &str, subtitle: &
     stack.add_titled(&page, Some(name), title);
 }
 
+fn add_desktop_page(stack: &gtk::Stack) {
+    let (page, content) = page(
+        "Desktop",
+        "Hyprland general settings, displays and keybindings",
+    );
+    let list = gtk::ListBox::builder()
+        .selection_mode(gtk::SelectionMode::None)
+        .css_classes(["boxed-list"])
+        .build();
+    match ProcessRuntime.descriptions() {
+        Ok(catalog) => {
+            for setting in catalog.settings {
+                let subtitle = format!(
+                    "{} · {:?}",
+                    setting.definition.description, setting.effective
+                );
+                list.append(
+                    &adw::ActionRow::builder()
+                        .title(glib::markup_escape_text(&setting.definition.label))
+                        .subtitle(glib::markup_escape_text(&subtitle))
+                        .build(),
+                );
+            }
+        }
+        Err(error) => list.append(
+            &adw::ActionRow::builder()
+                .title("Hyprland settings unavailable")
+                .subtitle(glib::markup_escape_text(&error.to_string()))
+                .build(),
+        ),
+    }
+    content.append(&list);
+    stack.add_titled(&page, Some("desktop"), "Desktop");
+}
+
 fn add_history_page(stack: &gtk::Stack) {
     let (page, content) = page("History", "Verified changes, rollback, and recovery");
     let list = gtk::ListBox::builder()
@@ -223,10 +255,11 @@ fn add_history_page(stack: &gtk::Stack) {
         && let Ok(history) = engine.history(100)
     {
         for entry in history {
+            let subtitle = format!("{} · {:?}", entry.id, entry.state);
             list.append(
                 &adw::ActionRow::builder()
-                    .title(&entry.summary)
-                    .subtitle(format!("{} · {:?}", entry.id, entry.state))
+                    .title(glib::markup_escape_text(&entry.summary))
+                    .subtitle(glib::markup_escape_text(&subtitle))
                     .build(),
             );
         }
