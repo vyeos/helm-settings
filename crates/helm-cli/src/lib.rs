@@ -9,6 +9,7 @@ use std::{
 
 use clap::{Parser, Subcommand, ValueEnum};
 use helm_core::{DiscoveryService, SystemProbe, foundation_catalog};
+use helm_transaction::Engine;
 use serde::Serialize;
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, ValueEnum)]
@@ -38,11 +39,27 @@ enum Command {
         #[command(subcommand)]
         command: SettingsCommand,
     },
+    /// Inspect or restore durable configuration history.
+    History {
+        #[command(subcommand)]
+        command: HistoryCommand,
+    },
 }
 
 #[derive(Debug, Subcommand)]
 enum SettingsCommand {
     List,
+}
+
+#[derive(Debug, Subcommand)]
+enum HistoryCommand {
+    /// List recent transactions.
+    List {
+        #[arg(long, default_value_t = 20)]
+        limit: usize,
+    },
+    /// Restore a committed transaction as a new transaction.
+    Undo { transaction_id: String },
 }
 
 #[derive(Serialize)]
@@ -106,7 +123,47 @@ where
                 })
             })
         }
+        Command::History { command } => {
+            let engine = default_engine()?;
+            match command {
+                HistoryCommand::List { limit } => {
+                    let history = engine.history(limit).map_err(|error| error.to_string())?;
+                    write_value(cli.output, output, &history, || {
+                        history.iter().fold(String::new(), |mut text, entry| {
+                            writeln!(text, "{}\t{:?}\t{}", entry.id, entry.state, entry.summary)
+                                .expect("writing to a String cannot fail");
+                            text
+                        })
+                    })
+                }
+                HistoryCommand::Undo { transaction_id } => {
+                    let result = engine
+                        .undo(&transaction_id, || Ok(()))
+                        .map_err(|error| error.to_string())?;
+                    write_value(cli.output, output, &result, || {
+                        format!("Restored as transaction {}\n", result.id)
+                    })
+                }
+            }
+        }
     }
+}
+
+fn default_engine() -> Result<Engine, String> {
+    let home = std::env::var_os("HOME").ok_or_else(|| "HOME is not set".to_owned())?;
+    let config = std::env::var_os("XDG_CONFIG_HOME").map_or_else(
+        || std::path::PathBuf::from(&home).join(".config"),
+        std::path::PathBuf::from,
+    );
+    let data = std::env::var_os("XDG_DATA_HOME").map_or_else(
+        || std::path::PathBuf::from(&home).join(".local/share"),
+        std::path::PathBuf::from,
+    );
+    let state = std::env::var_os("XDG_STATE_HOME").map_or_else(
+        || std::path::PathBuf::from(home).join(".local/state"),
+        std::path::PathBuf::from,
+    );
+    Engine::open(state.join("helm-settings"), vec![config, data]).map_err(|error| error.to_string())
 }
 
 fn write_value<T: Serialize>(
