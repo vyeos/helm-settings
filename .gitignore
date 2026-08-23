@@ -1,8 +1,10 @@
 /target/
+/fuzz/target/
+/fuzz/corpus/
+/fuzz/artifacts/
 /.idea/
 /.vscode/
 *.swp
 *.tmp
 *.log
 coverage/
-

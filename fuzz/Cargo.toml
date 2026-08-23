@@ -1,0 +1,38 @@
+[package]
+name = "helm-fuzz"
+version = "0.0.0"
+publish = false
+edition = "2024"
+
+[package.metadata]
+cargo-fuzz = true
+
+[dependencies]
+libfuzzer-sys = "0.4"
+serde_json = "1.0"
+helm-adapter-applications = { path = "../adapters/applications" }
+helm-adapter-desktop = { path = "../adapters/desktop" }
+helm-plugin-protocol = { path = "../crates/helm-plugin-protocol" }
+
+[[bin]]
+name = "protocol_frame"
+path = "fuzz_targets/protocol_frame.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "config_documents"
+path = "fuzz_targets/config_documents.rs"
+test = false
+doc = false
+bench = false
+
+[[bin]]
+name = "profile_json"
+path = "fuzz_targets/profile_json.rs"
+test = false
+doc = false
+bench = false
+
+[workspace]

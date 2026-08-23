@@ -141,6 +141,10 @@ where
     T: Into<std::ffi::OsString> + Clone,
 {
     let cli = Cli::try_parse_from(arguments).map_err(|error| error.to_string())?;
+    run_cli(cli, output)
+}
+
+fn run_cli(cli: Cli, output: &mut impl Write) -> Result<(), String> {
     let report = DiscoveryService::new(SystemProbe).discover();
     match cli.command.unwrap_or(Command::Status) {
         Command::Discover => write_value(cli.output, output, &report, || {
@@ -689,7 +693,14 @@ fn write_value<T: Serialize>(
 }
 
 pub fn run() -> Result<(), String> {
-    run_from(std::env::args_os(), &mut io::stdout().lock())
+    match Cli::try_parse() {
+        Ok(cli) => run_cli(cli, &mut io::stdout().lock()),
+        Err(error) if error.use_stderr() => Err(error.to_string()),
+        Err(error) => {
+            error.print().map_err(|error| error.to_string())?;
+            Ok(())
+        }
+    }
 }
 
 #[cfg(test)]
@@ -711,5 +722,13 @@ mod tests {
                 .as_array()
                 .is_some_and(|items| !items.is_empty())
         );
+    }
+
+    #[test]
+    fn clap_version_is_a_successful_display() {
+        let error = Cli::try_parse_from(["helm-settings", "--version"])
+            .expect_err("version is represented as a display result");
+        assert_eq!(error.kind(), clap::error::ErrorKind::DisplayVersion);
+        assert!(!error.use_stderr());
     }
 }

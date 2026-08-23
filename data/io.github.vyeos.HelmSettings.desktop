@@ -1,0 +1,12 @@
+[Desktop Entry]
+Type=Application
+Version=1.5
+Name=Helm
+GenericName=Desktop Settings
+Comment=Safely configure an existing Hyprland desktop
+Exec=helm-settings gui
+Icon=io.github.vyeos.HelmSettings
+Terminal=false
+Categories=Settings;DesktopSettings;GTK;
+Keywords=Hyprland;settings;desktop;configuration;
+StartupNotify=true

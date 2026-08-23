@@ -8,9 +8,8 @@ repository.workspace = true
 description = "A safe settings control plane for Hyprland desktops"
 
 [dependencies]
-helm-cli = { path = "../helm-cli" }
-helm-gui = { path = "../helm-gui" }
+helm-cli = { path = "../helm-cli", version = "0.9.0" }
+helm-gui = { path = "../helm-gui", version = "0.9.0" }
 
 [lints]
 workspace = true
-

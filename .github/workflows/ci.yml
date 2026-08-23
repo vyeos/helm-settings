@@ -16,7 +16,7 @@ jobs:
       matrix:
         toolchain: ["1.97.1", "stable"]
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Install toolchain
         run: rustup toolchain install "${{ matrix.toolchain }}" --profile minimal --component clippy,rustfmt
       - name: Check formatting
@@ -32,7 +32,7 @@ jobs:
     container: archlinux:base-devel
     steps:
       - run: pacman -Syu --noconfirm git rust cargo gtk4 libadwaita pkgconf
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - run: cargo clippy --workspace --all-targets --locked -- -D warnings
       - run: cargo test --workspace --locked
 
@@ -40,7 +40,7 @@ jobs:
     name: HTML links
     runs-on: ubuntu-24.04
     steps:
-      - uses: actions/checkout@fbc6f3992d24b796d5a048ff273f7fcc4a7b6c09 # v5
+      - uses: actions/checkout@de0fac2e4500dabe0009e67214ff5f5447ce83dd # v6.0.2
       - name: Verify local documentation links
         run: |
           python3 - <<'PY'

@@ -1,0 +1,7 @@
+<svg xmlns="http://www.w3.org/2000/svg" width="128" height="128" viewBox="0 0 128 128">
+  <title>Helm</title>
+  <rect width="128" height="128" rx="28" fill="#101418"/>
+  <circle cx="64" cy="64" r="36" fill="none" stroke="#88c0d0" stroke-width="9"/>
+  <circle cx="64" cy="64" r="8" fill="#eceff4"/>
+  <path d="M64 17v30M64 81v30M17 64h30M81 64h30M31 31l21 21M76 76l21 21M97 31L76 52M52 76L31 97" stroke="#eceff4" stroke-width="7" stroke-linecap="round"/>
+</svg>
