@@ -9,6 +9,7 @@ build = "build.rs"
 
 [dependencies]
 helm-core = { path = "../helm-core" }
+helm-adapter-applications = { path = "../../adapters/applications" }
 helm-adapter-hyprland = { path = "../../adapters/hyprland" }
 helm-transaction = { path = "../helm-transaction" }
 gtk.workspace = true

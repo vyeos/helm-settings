@@ -4,6 +4,7 @@
 
 use adw::prelude::*;
 use gtk::gio;
+use helm_adapter_applications::{alacritty, theme, yazi};
 use helm_adapter_hyprland::{HyprlandRuntime, ProcessRuntime};
 use helm_core::{DiscoveryService, SystemProbe, XdgPaths, foundation_catalog};
 use helm_transaction::Engine;
@@ -85,13 +86,7 @@ fn build_window(application: &adw::Application) {
         &["appearance", "wallpaper"],
     );
     add_desktop_page(&stack);
-    add_catalog_page(
-        &stack,
-        "applications",
-        "Applications",
-        "Alacritty, Yazi, Waybar and Quickshell",
-        &["applications"],
-    );
+    add_applications_page(&stack);
     add_placeholder_page(
         &stack,
         "profiles",
@@ -242,6 +237,58 @@ fn add_desktop_page(stack: &gtk::Stack) {
     }
     content.append(&list);
     stack.add_titled(&page, Some("desktop"), "Desktop");
+}
+
+fn add_applications_page(stack: &gtk::Stack) {
+    let (page, content) = page(
+        "Applications",
+        "Shared themes and lossless application integrations",
+    );
+    let list = gtk::ListBox::builder()
+        .selection_mode(gtk::SelectionMode::None)
+        .css_classes(["boxed-list"])
+        .build();
+    match XdgPaths::from_environment() {
+        Ok(paths) => {
+            let alacritty_status = format!("{:?}", alacritty::detect(&paths.config_home));
+            list.append(
+                &adw::ActionRow::builder()
+                    .title("Alacritty")
+                    .subtitle(glib::markup_escape_text(&alacritty_status))
+                    .build(),
+            );
+            match yazi::discover_flavors(&paths.config_home) {
+                Ok(flavors) => list.append(
+                    &adw::ActionRow::builder()
+                        .title("Yazi")
+                        .subtitle(format!("{} installed flavors", flavors.len()))
+                        .build(),
+                ),
+                Err(error) => list.append(
+                    &adw::ActionRow::builder()
+                        .title("Yazi")
+                        .subtitle(glib::markup_escape_text(&error.to_string()))
+                        .build(),
+                ),
+            }
+            for palette in theme::builtins() {
+                list.append(
+                    &adw::ActionRow::builder()
+                        .title(glib::markup_escape_text(&palette.name))
+                        .subtitle("Built-in copy-on-write theme")
+                        .build(),
+                );
+            }
+        }
+        Err(error) => list.append(
+            &adw::ActionRow::builder()
+                .title("Application paths unavailable")
+                .subtitle(error)
+                .build(),
+        ),
+    }
+    content.append(&list);
+    stack.add_titled(&page, Some("applications"), "Applications");
 }
 
 fn add_history_page(stack: &gtk::Stack) {

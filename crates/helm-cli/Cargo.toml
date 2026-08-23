@@ -9,10 +9,12 @@ repository.workspace = true
 [dependencies]
 clap.workspace = true
 helm-core = { path = "../helm-core" }
+helm-adapter-applications = { path = "../../adapters/applications" }
 helm-adapter-hyprland = { path = "../../adapters/hyprland" }
 helm-transaction = { path = "../helm-transaction" }
 serde.workspace = true
 serde_json.workspace = true
+toml_edit.workspace = true
 
 [lints]
 workspace = true

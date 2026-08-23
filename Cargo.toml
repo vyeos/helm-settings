@@ -1,6 +1,7 @@
 [workspace]
 resolver = "3"
 members = [
+  "adapters/applications",
   "adapters/hyprland",
   "crates/helm-model",
   "crates/helm-core",
@@ -13,7 +14,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.4.0"
+version = "0.5.0"
 edition = "2024"
 rust-version = "1.97"
 authors = ["vyeos <rudranpatel0980@gmail.com>"]
@@ -32,6 +33,7 @@ serde = { version = "1.0", features = ["derive"] }
 serde_json = "1.0"
 tempfile = "3.23"
 thiserror = "2.0"
+toml_edit = "0.25"
 
 [workspace.lints.rust]
 unsafe_code = "forbid"

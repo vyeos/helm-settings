@@ -8,9 +8,10 @@ use std::{
 };
 
 use clap::{Parser, Subcommand, ValueEnum};
+use helm_adapter_applications::{alacritty, theme, yazi};
 use helm_adapter_hyprland::{HyprlandRuntime, ProcessRuntime, detect_generation};
 use helm_core::{DiscoveryService, SystemProbe, XdgPaths, foundation_catalog};
-use helm_transaction::Engine;
+use helm_transaction::{Engine, FileChange, Fingerprint, TransactionPlan};
 use serde::Serialize;
 
 #[derive(Clone, Copy, Debug, Default, Eq, PartialEq, ValueEnum)]
@@ -50,6 +51,11 @@ enum Command {
         #[command(subcommand)]
         command: HyprlandCommand,
     },
+    /// Inspect and configure supported applications and shared themes.
+    Applications {
+        #[command(subcommand)]
+        command: ApplicationsCommand,
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -74,6 +80,15 @@ enum HyprlandCommand {
     Displays,
     Bindings,
     ConfigStatus,
+}
+
+#[derive(Debug, Subcommand)]
+enum ApplicationsCommand {
+    Themes,
+    AlacrittyStatus,
+    AlacrittyTheme { theme_id: String },
+    YaziFlavors,
+    YaziFlavor { flavor_id: String },
 }
 
 #[derive(Serialize)]
@@ -161,7 +176,128 @@ where
             }
         }
         Command::Hyprland { command } => run_hyprland(command, cli.output, output),
+        Command::Applications { command } => run_applications(command, cli.output, output),
     }
+}
+
+fn run_applications(
+    command: ApplicationsCommand,
+    format: OutputFormat,
+    output: &mut impl Write,
+) -> Result<(), String> {
+    let paths = XdgPaths::from_environment().map_err(str::to_owned)?;
+    match command {
+        ApplicationsCommand::Themes => {
+            let themes = theme::builtins();
+            write_value(format, output, &themes, || {
+                themes.iter().fold(String::new(), |mut text, theme| {
+                    writeln!(text, "{}\t{}", theme.id, theme.name)
+                        .expect("writing to a String cannot fail");
+                    text
+                })
+            })
+        }
+        ApplicationsCommand::AlacrittyStatus => {
+            let status = alacritty::detect(&paths.config_home);
+            write_value(format, output, &status, || format!("{status:?}\n"))
+        }
+        ApplicationsCommand::AlacrittyTheme { theme_id } => {
+            let selected = find_theme(&theme_id)?;
+            let root_path = paths.config_home.join("alacritty/alacritty.toml");
+            let root = read_optional_text(&root_path)?;
+            let plan = alacritty::plan_theme(&paths.config_home, &root, &selected)
+                .map_err(|error| error.to_string())?;
+            let transaction = TransactionPlan {
+                summary: format!("Set Alacritty theme to {}", selected.name),
+                changes: vec![
+                    write_change(&plan.root_path, plan.root_content.into_bytes())?,
+                    write_change(&plan.fragment_path, plan.fragment_content.into_bytes())?,
+                ],
+            };
+            let root_path = plan.root_path;
+            let fragment_path = plan.fragment_path;
+            let result = default_engine()?
+                .apply(&transaction, || {
+                    validate_toml_file(&root_path)?;
+                    validate_toml_file(&fragment_path)
+                })
+                .map_err(|error| error.to_string())?;
+            write_value(format, output, &result, || {
+                format!("Applied {} as transaction {}\n", selected.name, result.id)
+            })
+        }
+        ApplicationsCommand::YaziFlavors => {
+            let flavors =
+                yazi::discover_flavors(&paths.config_home).map_err(|error| error.to_string())?;
+            write_value(format, output, &flavors, || {
+                flavors.iter().fold(String::new(), |mut text, flavor| {
+                    writeln!(text, "{}\t{}", flavor.id, flavor.path.display())
+                        .expect("writing to a String cannot fail");
+                    text
+                })
+            })
+        }
+        ApplicationsCommand::YaziFlavor { flavor_id } => {
+            let installed =
+                yazi::discover_flavors(&paths.config_home).map_err(|error| error.to_string())?;
+            if !installed.iter().any(|flavor| flavor.id == flavor_id) {
+                return Err(format!("Yazi flavor `{flavor_id}` is not installed"));
+            }
+            let target = paths.config_home.join("yazi/theme.toml");
+            let source = read_optional_text(&target)?;
+            let replacement = yazi::select_flavor(&source, &flavor_id, &flavor_id)
+                .map_err(|error| error.to_string())?;
+            let transaction = TransactionPlan {
+                summary: format!("Set Yazi flavor to {flavor_id}"),
+                changes: vec![write_change(&target, replacement.into_bytes())?],
+            };
+            let verify_target = target.clone();
+            let result = default_engine()?
+                .apply(&transaction, || validate_toml_file(&verify_target))
+                .map_err(|error| error.to_string())?;
+            write_value(format, output, &result, || {
+                format!("Applied {flavor_id} as transaction {}\n", result.id)
+            })
+        }
+    }
+}
+
+fn find_theme(id: &str) -> Result<theme::Theme, String> {
+    theme::builtins()
+        .into_iter()
+        .find(|theme| theme.id == id)
+        .ok_or_else(|| format!("theme `{id}` was not found"))
+}
+
+fn read_optional_text(path: &std::path::Path) -> Result<String, String> {
+    match std::fs::read_to_string(path) {
+        Ok(value) => Ok(value),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => Ok(String::new()),
+        Err(error) => Err(format!("cannot read {}: {error}", path.display())),
+    }
+}
+
+fn write_change(path: &std::path::Path, replacement: Vec<u8>) -> Result<FileChange, String> {
+    let parent = path
+        .parent()
+        .ok_or_else(|| format!("{} has no parent directory", path.display()))?;
+    std::fs::create_dir_all(parent)
+        .map_err(|error| format!("cannot create {}: {error}", parent.display()))?;
+    let expected = match std::fs::read(path) {
+        Ok(value) => Some(Fingerprint::bytes(&value)),
+        Err(error) if error.kind() == std::io::ErrorKind::NotFound => None,
+        Err(error) => return Err(format!("cannot read {}: {error}", path.display())),
+    };
+    Ok(FileChange::write(path, expected, replacement))
+}
+
+fn validate_toml_file(path: &std::path::Path) -> Result<(), String> {
+    let source = std::fs::read_to_string(path)
+        .map_err(|error| format!("cannot verify {}: {error}", path.display()))?;
+    source
+        .parse::<toml_edit::DocumentMut>()
+        .map(|_| ())
+        .map_err(|error| format!("invalid TOML in {}: {error}", path.display()))
 }
 
 fn run_hyprland(
