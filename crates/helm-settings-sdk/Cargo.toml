@@ -1,0 +1,14 @@
+[package]
+name = "helm-settings-sdk"
+version.workspace = true
+edition.workspace = true
+rust-version.workspace = true
+license = "MIT OR Apache-2.0"
+repository.workspace = true
+
+[dependencies]
+helm-plugin-protocol = { path = "../helm-plugin-protocol" }
+
+[lints]
+workspace = true
+

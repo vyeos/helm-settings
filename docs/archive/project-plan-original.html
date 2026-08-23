@@ -1,0 +1,1146 @@
+<!DOCTYPE html>
+<html lang="en">
+<head>
+  <meta charset="UTF-8" />
+  <meta name="viewport" content="width=device-width, initial-scale=1.0" />
+  <title>Modular Linux Settings — Project Execution Plan</title>
+  <style>
+    :root {
+      --bg: #0b0d0f;
+      --panel: #111418;
+      --panel-2: #15191e;
+      --line: #252b32;
+      --text: #eef2f5;
+      --muted: #9aa5b1;
+      --accent: #a7c080;
+      --accent-2: #83c092;
+      --warn: #dbbc7f;
+      --danger: #e67e80;
+      --code: #0a0c0e;
+      --shadow: 0 18px 50px rgba(0,0,0,.26);
+      --radius: 18px;
+    }
+
+    * { box-sizing: border-box; }
+    html { scroll-behavior: smooth; }
+    body {
+      margin: 0;
+      background:
+        radial-gradient(circle at 15% -10%, rgba(167,192,128,.10), transparent 30%),
+        radial-gradient(circle at 85% 0%, rgba(131,192,146,.07), transparent 30%),
+        var(--bg);
+      color: var(--text);
+      font-family: Inter, ui-sans-serif, system-ui, -apple-system, BlinkMacSystemFont, "Segoe UI", sans-serif;
+      line-height: 1.6;
+    }
+
+    a { color: var(--accent); text-decoration: none; }
+    a:hover { text-decoration: underline; }
+
+    .shell {
+      display: grid;
+      grid-template-columns: 285px minmax(0, 1fr);
+      min-height: 100vh;
+    }
+
+    aside {
+      position: sticky;
+      top: 0;
+      height: 100vh;
+      padding: 26px 18px;
+      border-right: 1px solid var(--line);
+      background: rgba(9, 11, 13, .86);
+      backdrop-filter: blur(18px);
+      overflow-y: auto;
+    }
+
+    .brand {
+      padding: 0 10px 22px;
+      border-bottom: 1px solid var(--line);
+      margin-bottom: 18px;
+    }
+    .brand h1 { font-size: 19px; margin: 0 0 5px; letter-spacing: -.02em; }
+    .brand p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    nav a {
+      display: block;
+      padding: 8px 10px;
+      border-radius: 9px;
+      color: var(--muted);
+      font-size: 14px;
+      margin: 2px 0;
+    }
+    nav a:hover {
+      background: var(--panel-2);
+      color: var(--text);
+      text-decoration: none;
+    }
+    nav .group {
+      color: #67727e;
+      text-transform: uppercase;
+      letter-spacing: .09em;
+      font-size: 10px;
+      margin: 18px 10px 7px;
+      font-weight: 700;
+    }
+
+    main {
+      width: min(1180px, calc(100vw - 285px));
+      padding: 64px 68px 120px;
+    }
+
+    .hero {
+      padding: 48px;
+      border: 1px solid var(--line);
+      border-radius: 26px;
+      background:
+        linear-gradient(135deg, rgba(167,192,128,.10), rgba(17,20,24,.55) 48%, rgba(131,192,146,.05)),
+        var(--panel);
+      box-shadow: var(--shadow);
+      margin-bottom: 42px;
+    }
+    .eyebrow {
+      color: var(--accent);
+      text-transform: uppercase;
+      letter-spacing: .12em;
+      font-size: 11px;
+      font-weight: 800;
+    }
+    .hero h2 {
+      font-size: clamp(36px, 5vw, 64px);
+      line-height: 1.02;
+      letter-spacing: -.045em;
+      margin: 14px 0 18px;
+      max-width: 900px;
+    }
+    .hero p {
+      font-size: 18px;
+      color: var(--muted);
+      max-width: 860px;
+      margin: 0;
+    }
+    .hero .pill-row { margin-top: 28px; display: flex; flex-wrap: wrap; gap: 9px; }
+    .pill {
+      border: 1px solid var(--line);
+      background: rgba(255,255,255,.02);
+      border-radius: 100px;
+      padding: 7px 11px;
+      color: #c9d2da;
+      font-size: 12px;
+    }
+
+    section { scroll-margin-top: 28px; margin: 48px 0; }
+    section > h2 {
+      font-size: 28px;
+      letter-spacing: -.025em;
+      margin: 0 0 16px;
+    }
+    section > p.lead {
+      color: var(--muted);
+      max-width: 900px;
+      font-size: 16px;
+      margin-top: -4px;
+    }
+
+    .grid {
+      display: grid;
+      gap: 16px;
+      grid-template-columns: repeat(2, minmax(0, 1fr));
+      margin: 22px 0;
+    }
+    .grid.three { grid-template-columns: repeat(3, minmax(0, 1fr)); }
+
+    .card {
+      border: 1px solid var(--line);
+      background: var(--panel);
+      border-radius: var(--radius);
+      padding: 22px;
+    }
+    .card h3 {
+      margin: 0 0 8px;
+      font-size: 16px;
+      letter-spacing: -.01em;
+    }
+    .card p { color: var(--muted); margin: 0; font-size: 14px; }
+    .card ul { margin-bottom: 0; }
+
+    .callout {
+      border: 1px solid rgba(167,192,128,.28);
+      background: rgba(167,192,128,.07);
+      padding: 18px 20px;
+      border-radius: 14px;
+      margin: 20px 0;
+    }
+    .callout.warn {
+      border-color: rgba(219,188,127,.28);
+      background: rgba(219,188,127,.07);
+    }
+    .callout.danger {
+      border-color: rgba(230,126,128,.28);
+      background: rgba(230,126,128,.07);
+    }
+    .callout strong { display: block; margin-bottom: 5px; }
+
+    table {
+      width: 100%;
+      border-collapse: collapse;
+      margin: 18px 0;
+      background: var(--panel);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      overflow: hidden;
+    }
+    th, td {
+      text-align: left;
+      padding: 13px 14px;
+      border-bottom: 1px solid var(--line);
+      vertical-align: top;
+      font-size: 13px;
+    }
+    th {
+      color: #dce3e9;
+      font-weight: 650;
+      background: var(--panel-2);
+    }
+    td { color: var(--muted); }
+    tr:last-child td { border-bottom: 0; }
+
+    code {
+      font-family: "SFMono-Regular", Consolas, "Liberation Mono", monospace;
+      background: rgba(255,255,255,.045);
+      border: 1px solid rgba(255,255,255,.05);
+      border-radius: 6px;
+      padding: 2px 6px;
+      font-size: .91em;
+      color: #d8e5d3;
+    }
+    pre {
+      background: var(--code);
+      border: 1px solid var(--line);
+      border-radius: 14px;
+      padding: 18px;
+      overflow-x: auto;
+      color: #cdd7df;
+      line-height: 1.55;
+      font-size: 13px;
+    }
+    pre code {
+      padding: 0;
+      border: 0;
+      background: none;
+      color: inherit;
+    }
+
+    ul, ol { color: var(--muted); }
+    li { margin: 6px 0; }
+    li strong { color: var(--text); }
+
+    .phase {
+      display: grid;
+      grid-template-columns: 92px 1fr;
+      gap: 22px;
+      padding: 20px 0;
+      border-top: 1px solid var(--line);
+    }
+    .phase:last-child { border-bottom: 1px solid var(--line); }
+    .phase-id {
+      color: var(--accent);
+      font-size: 12px;
+      font-weight: 800;
+      letter-spacing: .08em;
+      text-transform: uppercase;
+      padding-top: 4px;
+    }
+    .phase h3 { margin: 0 0 8px; }
+    .phase p { margin: 0 0 8px; color: var(--muted); }
+
+    .checklist {
+      list-style: none;
+      padding-left: 0;
+    }
+    .checklist li {
+      position: relative;
+      padding-left: 28px;
+      margin: 10px 0;
+    }
+    .checklist li::before {
+      content: "□";
+      position: absolute;
+      left: 0;
+      top: -1px;
+      color: var(--accent);
+      font-size: 18px;
+    }
+
+    .rule {
+      display: grid;
+      grid-template-columns: 44px 1fr;
+      gap: 14px;
+      align-items: start;
+      margin: 12px 0;
+    }
+    .rule-num {
+      width: 34px;
+      height: 34px;
+      display: grid;
+      place-items: center;
+      background: var(--panel-2);
+      border: 1px solid var(--line);
+      border-radius: 10px;
+      color: var(--accent);
+      font-weight: 800;
+      font-size: 12px;
+    }
+    .rule h4 { margin: 0 0 3px; font-size: 14px; }
+    .rule p { margin: 0; color: var(--muted); font-size: 13px; }
+
+    .footer {
+      border-top: 1px solid var(--line);
+      padding-top: 24px;
+      color: var(--muted);
+      font-size: 13px;
+      margin-top: 64px;
+    }
+
+    @media (max-width: 980px) {
+      .shell { display: block; }
+      aside { position: relative; width: 100%; height: auto; border-right: 0; border-bottom: 1px solid var(--line); }
+      nav { display: none; }
+      main { width: 100%; padding: 34px 20px 80px; }
+      .hero { padding: 30px 24px; }
+      .grid, .grid.three { grid-template-columns: 1fr; }
+      .phase { grid-template-columns: 1fr; gap: 8px; }
+    }
+
+    @media print {
+      body { background: white; color: black; }
+      aside { display: none; }
+      main { width: 100%; padding: 0; }
+      .card, table, .hero, pre { box-shadow: none; break-inside: avoid; }
+    }
+  </style>
+</head>
+<body>
+<div class="shell">
+  <aside>
+    <div class="brand">
+      <h1>Modular Linux Settings</h1>
+      <p>Agent execution specification</p>
+    </div>
+    <nav>
+      <div class="group">Product</div>
+      <a href="#mission">Mission</a>
+      <a href="#principles">Principles</a>
+      <a href="#scope">Scope</a>
+      <a href="#users">Users & UX</a>
+
+      <div class="group">Architecture</div>
+      <a href="#architecture">System Architecture</a>
+      <a href="#data-model">Settings Model</a>
+      <a href="#config-safety">Config Safety</a>
+      <a href="#plugins">Plugin System</a>
+      <a href="#theme-engine">Theme Engine</a>
+
+      <div class="group">Features</div>
+      <a href="#modules">Settings Modules</a>
+      <a href="#cli">CLI</a>
+      <a href="#profiles">Profiles</a>
+      <a href="#discovery">Discovery</a>
+
+      <div class="group">Execution</div>
+      <a href="#stack">Recommended Stack</a>
+      <a href="#repo">Repository Layout</a>
+      <a href="#phases">Implementation Phases</a>
+      <a href="#testing">Testing</a>
+      <a href="#security">Security</a>
+      <a href="#release">Release Criteria</a>
+      <a href="#agent-rules">Agent Rules</a>
+    </nav>
+  </aside>
+
+  <main>
+    <header class="hero">
+      <div class="eyebrow">Master Project Specification</div>
+      <h2>Build a proper settings application for modular Linux desktops.</h2>
+      <p>
+        The product should provide a polished macOS/Windows-style system settings experience for Hyprland and Arch-based Linux systems,
+        while preserving the transparency, composability, and user ownership expected by experienced Linux users.
+      </p>
+      <div class="pill-row">
+        <span class="pill">Hyprland first</span>
+        <span class="pill">Arch-compatible</span>
+        <span class="pill">Non-destructive</span>
+        <span class="pill">Plugin-driven</span>
+        <span class="pill">GUI + CLI</span>
+        <span class="pill">Community-extensible</span>
+      </div>
+    </header>
+
+    <section id="mission">
+      <h2>1. Product mission</h2>
+      <p class="lead">
+        Build a control plane for a user's existing Linux desktop. The application must not require the user to adopt a specific dotfile
+        distribution, shell, bar, terminal, launcher, notification daemon, or theme system.
+      </p>
+      <div class="callout">
+        <strong>Core product statement</strong>
+        “Tell the application what desktop stack is installed, and it gives the user one coherent interface for safely controlling it.”
+      </div>
+
+      <div class="grid">
+        <div class="card">
+          <h3>What this product is</h3>
+          <ul>
+            <li>A graphical settings application.</li>
+            <li>A configuration orchestration layer.</li>
+            <li>A plugin framework for app-specific settings.</li>
+            <li>A theme and profile management system.</li>
+            <li>A safe GUI over Linux configuration files and runtime APIs.</li>
+          </ul>
+        </div>
+        <div class="card">
+          <h3>What this product is not</h3>
+          <ul>
+            <li>Not another dotfiles repository.</li>
+            <li>Not a replacement Linux distro.</li>
+            <li>Not a fork of Hyprland.</li>
+            <li>Not a system daemon that owns all user configuration.</li>
+            <li>Not a GUI that blindly rewrites arbitrary config files.</li>
+          </ul>
+        </div>
+      </div>
+    </section>
+
+    <section id="principles">
+      <h2>2. Non-negotiable product principles</h2>
+
+      <div class="rule"><div class="rule-num">01</div><div><h4>User owns their configuration</h4><p>Never treat user-authored config as generated state. Generated files must be clearly separated and recoverable.</p></div></div>
+      <div class="rule"><div class="rule-num">02</div><div><h4>GUI and CLI share the same core</h4><p>No duplicate business logic. All reads, writes, validation, snapshots, diffs, profile switches and plugin actions must pass through one settings core.</p></div></div>
+      <div class="rule"><div class="rule-num">03</div><div><h4>Prefer adapters over assumptions</h4><p>Detect the installed stack and use adapters for Hyprland, Waybar, Quickshell, Alacritty, Yazi, Mako, etc.</p></div></div>
+      <div class="rule"><div class="rule-num">04</div><div><h4>Every write must be reversible</h4><p>Take snapshots before mutation, offer preview/diff where practical, and expose restore operations.</p></div></div>
+      <div class="rule"><div class="rule-num">05</div><div><h4>Do not hide Linux</h4><p>Expose generated configuration, file locations and runtime commands. The product simplifies Linux; it does not pretend Linux is something else.</p></div></div>
+      <div class="rule"><div class="rule-num">06</div><div><h4>Progressive disclosure</h4><p>Normal users see controls; power users can open advanced settings, raw config, generated output, logs and diagnostics.</p></div></div>
+      <div class="rule"><div class="rule-num">07</div><div><h4>Fail safely</h4><p>A malformed plugin, failed reload or invalid config must not leave the desktop unusable.</p></div></div>
+      <div class="rule"><div class="rule-num">08</div><div><h4>Local-first</h4><p>No cloud account is required. Settings, themes, profiles and backups work offline.</p></div></div>
+    </section>
+
+    <section id="scope">
+      <h2>3. Scope and product boundaries</h2>
+      <p class="lead">
+        V1 should solve the configuration problems most specific to modular Wayland desktops. Do not begin by rebuilding GNOME Settings.
+      </p>
+
+      <table>
+        <thead><tr><th>Priority</th><th>Subsystem</th><th>V1 expectation</th></tr></thead>
+        <tbody>
+          <tr><td>P0</td><td>Appearance</td><td>Themes, colors, fonts, icons, cursors, wallpaper integration.</td></tr>
+          <tr><td>P0</td><td>Hyprland</td><td>Gaps, borders, rounding, opacity, blur, animation, layouts, workspaces.</td></tr>
+          <tr><td>P0</td><td>Displays</td><td>Monitor discovery, arrangement, resolution, refresh rate, scale, rotation, VRR when supported.</td></tr>
+          <tr><td>P0</td><td>Keybindings</td><td>Read, add, edit, delete, conflict detection, built-in action templates.</td></tr>
+          <tr><td>P0</td><td>App plugins</td><td>At least Alacritty + Yazi + one bar/shell integration.</td></tr>
+          <tr><td>P1</td><td>Wallpaper</td><td>Library, per-monitor selection, history, favorites, optional palette extraction.</td></tr>
+          <tr><td>P1</td><td>Startup / idle</td><td>Autostart, Hypridle, Hyprlock and session startup integration.</td></tr>
+          <tr><td>P1</td><td>Default apps</td><td>Terminal, browser, file manager, editor, image/video/PDF viewer.</td></tr>
+          <tr><td>P1</td><td>Window rules</td><td>Visual rule editor with validation.</td></tr>
+          <tr><td>P1</td><td>Profiles</td><td>Laptop/desk/gaming/presentation style config bundles.</td></tr>
+          <tr><td>P2</td><td>Audio / network / Bluetooth / users</td><td>Post-V1 unless architecture already exposes reliable system APIs.</td></tr>
+          <tr><td>P2</td><td>Package management</td><td>Do not include in MVP. Treat as a separate later subsystem.</td></tr>
+        </tbody>
+      </table>
+    </section>
+
+    <section id="users">
+      <h2>4. UX expectations</h2>
+      <div class="grid">
+        <div class="card">
+          <h3>Beginner path</h3>
+          <p>Install → launch → scan desktop → see only relevant settings → change a value → preview/apply → desktop reloads automatically.</p>
+        </div>
+        <div class="card">
+          <h3>Power-user path</h3>
+          <p>Inspect exact config paths, generated fragments, command invocations, diff, logs and per-plugin behavior. Allow opting out of management per subsystem.</p>
+        </div>
+      </div>
+
+      <ul>
+        <li>Use a desktop-settings information architecture: persistent sidebar, section detail view, search.</li>
+        <li>Controls should map to semantic concepts, not configuration syntax.</li>
+        <li>Use immediate preview only when safe; otherwise require Apply.</li>
+        <li>Any destructive or session-impacting action must clearly explain impact before execution.</li>
+        <li>Search should find both human terms (“rounded corners”) and underlying concepts (<code>rounding</code>).</li>
+        <li>Unavailable settings must explain why they are unavailable instead of silently disappearing when that would confuse the user.</li>
+      </ul>
+    </section>
+
+    <section id="architecture">
+      <h2>5. System architecture</h2>
+      <pre><code>┌──────────────────────────────────────────────────────┐
+│                    Presentation                      │
+│                                                      │
+│        Desktop GUI                  CLI               │
+└──────────────┬───────────────────────┬───────────────┘
+               │                       │
+               └───────────┬───────────┘
+                           ▼
+┌──────────────────────────────────────────────────────┐
+│                  Settings Core                       │
+│                                                      │
+│ read · validate · diff · apply · snapshot · restore │
+│ profiles · discovery · dependency graph · events    │
+└──────────────┬───────────────────────┬───────────────┘
+               │                       │
+      ┌────────▼────────┐      ┌──────▼────────┐
+      │ Desktop adapters│      │ App plugins   │
+      │                 │      │               │
+      │ Hyprland        │      │ Alacritty     │
+      │ Hypridle        │      │ Yazi          │
+      │ Hyprlock        │      │ Waybar        │
+      │ Wallpaper       │      │ Quickshell    │
+      └────────┬────────┘      └──────┬────────┘
+               │                       │
+               └───────────┬───────────┘
+                           ▼
+                   Files / IPC / DBus
+                   system commands
+                   runtime sockets</code></pre>
+
+      <div class="callout warn">
+        <strong>Architecture rule</strong>
+        The GUI must never directly edit <code>hyprland.conf</code>, invoke <code>hyprctl</code>, edit Alacritty files or manipulate system state.
+        It calls the Settings Core, which delegates to a versioned adapter/plugin.
+      </div>
+    </section>
+
+    <section id="data-model">
+      <h2>6. Canonical settings model</h2>
+      <p class="lead">
+        Internally, settings should be represented independently of any target application's file format.
+      </p>
+      <pre><code>{
+  "path": "desktop.hyprland.general.gaps_out",
+  "type": "integer",
+  "value": 10,
+  "default": 5,
+  "constraints": { "min": 0, "max": 100 },
+  "source": "hyprland",
+  "restartPolicy": "reload",
+  "managed": true,
+  "dirty": false
+}</code></pre>
+
+      <p>Every setting definition should support, where applicable:</p>
+      <ul>
+        <li>Stable ID/path.</li>
+        <li>Display label and description.</li>
+        <li>Type: boolean, integer, float, string, enum, color, file, directory, command, keybinding, list, object.</li>
+        <li>Default value and current resolved value.</li>
+        <li>Validation constraints.</li>
+        <li>Visibility conditions and dependency conditions.</li>
+        <li>Restart/reload requirements.</li>
+        <li>Source plugin/adapter.</li>
+        <li>Whether the value is user-owned, generated, inherited or unmanaged.</li>
+      </ul>
+    </section>
+
+    <section id="config-safety">
+      <h2>7. Configuration safety model</h2>
+      <p class="lead">This is the most important engineering requirement in the entire project.</p>
+
+      <div class="callout danger">
+        <strong>Forbidden behavior</strong>
+        Do not parse an arbitrary user config and rewrite the whole file after a one-field UI change unless the specific format adapter can guarantee lossless round-tripping.
+      </div>
+
+      <h3>Preferred strategy: generated override fragments</h3>
+      <pre><code>~/.config/hypr/hyprland.conf
+  ├─ user's normal configuration
+  └─ source = ~/.config/modular-settings/generated/hyprland.conf
+
+~/.config/modular-settings/
+  ├─ state/
+  ├─ generated/
+  │   ├─ hyprland.conf
+  │   ├─ theme/
+  │   └─ ...
+  ├─ snapshots/
+  ├─ profiles/
+  └─ plugins/</code></pre>
+
+      <h3>Mutation transaction</h3>
+      <ol>
+        <li>Read current state.</li>
+        <li>Validate proposed state.</li>
+        <li>Generate output into a temporary file.</li>
+        <li>Validate generated configuration with the target adapter where possible.</li>
+        <li>Create snapshot of currently managed output.</li>
+        <li>Atomically replace generated file.</li>
+        <li>Request target reload.</li>
+        <li>Verify success.</li>
+        <li>If verification fails, restore snapshot automatically.</li>
+        <li>Return structured success/error information to GUI/CLI.</li>
+      </ol>
+
+      <h3>Required backup behavior</h3>
+      <ul>
+        <li>Automatic snapshots before every write transaction.</li>
+        <li>Retention policy configurable; reasonable default such as last 20 snapshots per component.</li>
+        <li>Named manual snapshots.</li>
+        <li>Full profile/export snapshots.</li>
+        <li>One-click rollback from GUI and CLI.</li>
+      </ul>
+    </section>
+
+    <section id="plugins">
+      <h2>8. Plugin system</h2>
+      <p class="lead">
+        The plugin framework is a first-class product feature, not an implementation detail. The core team should not need to hard-code every Linux application.
+      </p>
+
+      <pre><code>plugin/
+├─ plugin.toml
+├─ schema.json
+├─ icon.svg
+├─ adapter
+│  └─ ...
+├─ migrations/
+└─ README.md</code></pre>
+
+      <h3>Example manifest</h3>
+      <pre><code>id = "alacritty"
+name = "Alacritty"
+version = "1.0.0"
+api_version = 1
+
+[detect]
+binary = "alacritty"
+config = "~/.config/alacritty/alacritty.toml"
+
+[capabilities]
+read = true
+write = true
+preview = false
+reload = false</code></pre>
+
+      <h3>Example schema concept</h3>
+      <pre><code>{
+  "groups": [
+    {
+      "id": "font",
+      "label": "Font",
+      "settings": [
+        {
+          "id": "font.size",
+          "type": "number",
+          "label": "Font Size",
+          "min": 6,
+          "max": 36,
+          "step": 0.5
+        }
+      ]
+    }
+  ]
+}</code></pre>
+
+      <h3>Plugin API requirements</h3>
+      <ul>
+        <li><strong>detect()</strong> — determine whether plugin is applicable.</li>
+        <li><strong>read()</strong> — resolve current values.</li>
+        <li><strong>validate()</strong> — validate requested changes.</li>
+        <li><strong>plan()</strong> — produce a human-readable mutation plan/diff.</li>
+        <li><strong>apply()</strong> — perform a transaction through core-provided safe filesystem primitives.</li>
+        <li><strong>reload()</strong> — reload target when possible.</li>
+        <li><strong>health()</strong> — provide diagnostic status.</li>
+      </ul>
+
+      <div class="callout">
+        <strong>Security requirement</strong>
+        Third-party plugins must not automatically receive unrestricted shell execution. Design a permission/capability model before community plugin distribution.
+      </div>
+    </section>
+
+    <section id="theme-engine">
+      <h2>9. Theme engine</h2>
+      <p class="lead">
+        Themes should use semantic tokens, then adapters map those tokens into target applications.
+      </p>
+
+      <pre><code>[meta]
+name = "Everforest Dark"
+
+[colors]
+background = "#272e33"
+surface = "#2e383c"
+surface_alt = "#374145"
+foreground = "#d3c6aa"
+muted = "#859289"
+
+accent = "#a7c080"
+accent_alt = "#83c092"
+
+red = "#e67e80"
+orange = "#e69875"
+yellow = "#dbbc7f"
+green = "#a7c080"
+blue = "#7fbbb3"
+purple = "#d699b6"</code></pre>
+
+      <p>Theme targets should be opt-in per application. A user must be able to apply a desktop theme without forcing their editor or terminal to change.</p>
+      <ul>
+        <li>Hyprland border/colors.</li>
+        <li>GTK and Qt where safely supported.</li>
+        <li>Terminal emulators.</li>
+        <li>Waybar / Quickshell.</li>
+        <li>Rofi / launchers.</li>
+        <li>Mako / SwayNC.</li>
+        <li>Hyprlock.</li>
+        <li>Yazi.</li>
+        <li>Optional adapters for Neovim and other developer tools.</li>
+      </ul>
+    </section>
+
+    <section id="modules">
+      <h2>10. Settings modules</h2>
+      <div class="grid three">
+        <div class="card"><h3>Appearance</h3><p>Theme, light/dark mode, GTK/Qt, fonts, icons, cursor, borders, radius, opacity.</p></div>
+        <div class="card"><h3>Wallpaper</h3><p>Library, per monitor, favorites, history, randomization, rotation, palette extraction.</p></div>
+        <div class="card"><h3>Desktop</h3><p>Hyprland general, decoration, animations, layout, workspaces, gestures.</p></div>
+        <div class="card"><h3>Displays</h3><p>Drag arrangement, resolution, Hz, scaling, transforms, VRR and workspace assignment.</p></div>
+        <div class="card"><h3>Input</h3><p>Keyboard layout, repeat, mouse, touchpad, natural scrolling, sensitivity and gestures.</p></div>
+        <div class="card"><h3>Keybindings</h3><p>Visual shortcut editor, actions, commands, duplicate/conflict detection.</p></div>
+        <div class="card"><h3>Window Rules</h3><p>Match by class/title/workspace with visual actions and validation.</p></div>
+        <div class="card"><h3>Startup</h3><p>Hyprland exec-once entries and optional user systemd service integration.</p></div>
+        <div class="card"><h3>Lock & Idle</h3><p>Hyprlock appearance plus Hypridle timeout/suspend/DPMS actions.</p></div>
+        <div class="card"><h3>Apps</h3><p>Dynamically populated from installed plugins and detected applications.</p></div>
+        <div class="card"><h3>Defaults</h3><p>Terminal, browser, file manager, editor, media handlers and MIME defaults where appropriate.</p></div>
+        <div class="card"><h3>Advanced</h3><p>Raw managed config, logs, environment, reload controls, diagnostics, snapshots.</p></div>
+      </div>
+    </section>
+
+    <section id="cli">
+      <h2>11. CLI requirements</h2>
+      <pre><code># inspection
+mlsettings get desktop.hyprland.general.gaps_out
+mlsettings list
+mlsettings plugins list
+mlsettings doctor
+
+# writes
+mlsettings set desktop.hyprland.general.gaps_out 10
+mlsettings theme apply everforest
+mlsettings wallpaper set ~/Pictures/wallpaper.png
+
+# profiles
+mlsettings profile list
+mlsettings profile apply gaming
+
+# safety
+mlsettings diff
+mlsettings snapshot create before-rice-change
+mlsettings snapshot list
+mlsettings snapshot restore &lt;id&gt;
+
+# debugging
+mlsettings config paths
+mlsettings logs
+mlsettings plugin inspect alacritty</code></pre>
+
+      <p>The CLI should support machine-readable output, preferably <code>--json</code>, so shell scripts and external tools can integrate with the settings core.</p>
+    </section>
+
+    <section id="profiles">
+      <h2>12. Profiles</h2>
+      <p>Profiles are named bundles of settings and optional runtime actions.</p>
+      <pre><code>profiles/
+├─ laptop.toml
+├─ desk.toml
+├─ gaming.toml
+└─ presentation.toml</code></pre>
+
+      <table>
+        <thead><tr><th>Profile</th><th>Typical configuration</th></tr></thead>
+        <tbody>
+          <tr><td>Laptop</td><td>Lower refresh rate, power-saving behavior, smaller gaps, laptop display only.</td></tr>
+          <tr><td>Desk</td><td>External display arrangement, preferred refresh rates, normal animations.</td></tr>
+          <tr><td>Gaming</td><td>VRR, minimal blur, no heavy animations, performance-related session settings where supported.</td></tr>
+          <tr><td>Presentation</td><td>Display mirroring, notifications disabled, simplified workspace behavior.</td></tr>
+        </tbody>
+      </table>
+
+      <p>Profile application must itself be transactional: either all applicable changes succeed, or failed operations are reported and rollback occurs according to component safety policies.</p>
+    </section>
+
+    <section id="discovery">
+      <h2>13. Desktop discovery</h2>
+      <p class="lead">First launch should inspect the system and construct a settings interface relevant to the current machine.</p>
+
+      <pre><code>Desktop scan
+────────────────────
+Hyprland       detected
+Hyprlock       detected
+Hypridle       detected
+Quickshell     detected
+Alacritty      detected
+Yazi           detected
+Mako           not installed
+Waybar         not installed
+Matugen        not installed</code></pre>
+
+      <p>Discovery should inspect:</p>
+      <ul>
+        <li>Available binaries in <code>PATH</code>.</li>
+        <li>Known config locations.</li>
+        <li>Hyprland runtime environment and IPC/socket availability.</li>
+        <li>User services where relevant.</li>
+        <li>Optional dependencies required by plugins.</li>
+      </ul>
+
+      <p>Discovery results must be cached but refreshable. The application must tolerate software being installed or removed while it is running.</p>
+    </section>
+
+    <section id="stack">
+      <h2>14. Recommended implementation stack</h2>
+
+      <div class="callout">
+        <strong>Recommended baseline</strong>
+        Rust settings core + Rust CLI + GTK4/libadwaita or a Rust-native GUI capable of matching native desktop interaction expectations.
+        Keep UI technology swappable by exposing a clean core API.
+      </div>
+
+      <table>
+        <thead><tr><th>Layer</th><th>Recommendation</th><th>Reason</th></tr></thead>
+        <tbody>
+          <tr><td>Core</td><td>Rust</td><td>Strong typing, safe filesystem work, excellent CLI/system integration, distributable static-ish binaries.</td></tr>
+          <tr><td>GUI</td><td>GTK4 + libadwaita, or another production-capable Rust UI stack</td><td>Good Linux integration and accessibility. Do not couple core behavior to toolkit.</td></tr>
+          <tr><td>CLI</td><td>Rust + clap</td><td>Shared domain types and easy packaging.</td></tr>
+          <tr><td>Serialization</td><td>serde + TOML/JSON/YAML adapters</td><td>Config ecosystem compatibility.</td></tr>
+          <tr><td>State</td><td>Small local SQLite DB only if needed; otherwise files</td><td>Use DB for metadata/index/history, not as hidden source of truth for Linux config.</td></tr>
+          <tr><td>IPC</td><td>In-process initially; optional DBus/service later</td><td>Avoid unnecessary daemon architecture in MVP.</td></tr>
+          <tr><td>Tests</td><td>Rust unit/integration + fixture-based config tests</td><td>Lossless/safe config behavior must be heavily regression tested.</td></tr>
+        </tbody>
+      </table>
+
+      <div class="callout warn">
+        <strong>Do not over-engineer V1</strong>
+        A permanent privileged daemon, cloud backend, plugin marketplace server, account system and distro installer are outside MVP.
+      </div>
+    </section>
+
+    <section id="repo">
+      <h2>15. Repository layout</h2>
+      <pre><code>modular-linux-settings/
+├─ Cargo.toml
+├─ README.md
+├─ LICENSE
+├─ docs/
+│  ├─ architecture.md
+│  ├─ plugin-api.md
+│  ├─ config-safety.md
+│  └─ contributing.md
+├─ crates/
+│  ├─ core/
+│  ├─ cli/
+│  ├─ gui/
+│  ├─ plugin-sdk/
+│  ├─ config-io/
+│  ├─ snapshots/
+│  └─ diagnostics/
+├─ adapters/
+│  ├─ hyprland/
+│  ├─ hypridle/
+│  ├─ hyprlock/
+│  └─ wallpaper/
+├─ plugins/
+│  ├─ alacritty/
+│  ├─ yazi/
+│  ├─ waybar/
+│  └─ quickshell/
+├─ themes/
+│  ├─ everforest/
+│  └─ example/
+├─ fixtures/
+│  ├─ hyprland/
+│  ├─ alacritty/
+│  └─ yazi/
+├─ packaging/
+│  ├─ arch/
+│  └─ flatpak/   # optional later, assess permission constraints first
+└─ scripts/</code></pre>
+    </section>
+
+    <section id="phases">
+      <h2>16. Implementation phases</h2>
+
+      <div class="phase">
+        <div class="phase-id">Phase 0</div>
+        <div>
+          <h3>Foundation and technical spike</h3>
+          <p>Prove safe read/write/reload behavior before investing in UI.</p>
+          <ul class="checklist">
+            <li>Initialize workspace and CI.</li>
+            <li>Define canonical settings types and error model.</li>
+            <li>Implement filesystem abstraction with atomic writes.</li>
+            <li>Implement snapshot manager.</li>
+            <li>Implement Hyprland environment/runtime detection.</li>
+            <li>Create one end-to-end setting: <code>gaps_out</code> read → change → generated override → reload → rollback.</li>
+          </ul>
+          <strong>Exit criterion:</strong> A test fixture and a real Hyprland session can safely change and restore one setting without modifying unrelated user config.
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-id">Phase 1</div>
+        <div>
+          <h3>Settings core + Hyprland adapter</h3>
+          <ul class="checklist">
+            <li>General/decorations/animations/layout settings.</li>
+            <li>Hyprland config generation.</li>
+            <li>Runtime reload and health verification.</li>
+            <li>Diff generation.</li>
+            <li>CLI get/set/diff/snapshot/restore.</li>
+            <li>Fixture coverage for multiple user config layouts.</li>
+          </ul>
+          <strong>Exit criterion:</strong> Core/CLI are useful without a GUI.
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-id">Phase 2</div>
+        <div>
+          <h3>GUI shell</h3>
+          <ul class="checklist">
+            <li>Sidebar navigation.</li>
+            <li>Search.</li>
+            <li>Reusable setting controls generated from schemas.</li>
+            <li>Apply/revert workflow.</li>
+            <li>Inline validation and error presentation.</li>
+            <li>Advanced view showing source and generated config.</li>
+          </ul>
+          <strong>Exit criterion:</strong> Hyprland general appearance can be comfortably configured entirely from GUI.
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-id">Phase 3</div>
+        <div>
+          <h3>Displays and keybindings</h3>
+          <ul class="checklist">
+            <li>Monitor discovery.</li>
+            <li>Visual monitor arrangement.</li>
+            <li>Resolution/refresh/scale/rotation.</li>
+            <li>Safe monitor configuration preview/recovery strategy.</li>
+            <li>Parse existing Hyprland keybindings.</li>
+            <li>Add/edit/remove managed bindings.</li>
+            <li>Conflict detection.</li>
+          </ul>
+          <strong>Exit criterion:</strong> Two of Hyprland's most error-prone tasks are first-class GUI experiences.
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-id">Phase 4</div>
+        <div>
+          <h3>Plugin SDK and first app integrations</h3>
+          <ul class="checklist">
+            <li>Versioned plugin manifest.</li>
+            <li>Detection API.</li>
+            <li>Schema-driven UI API.</li>
+            <li>Permission/capability model.</li>
+            <li>Alacritty plugin.</li>
+            <li>Yazi plugin.</li>
+            <li>Waybar or Quickshell plugin.</li>
+            <li>Plugin developer documentation.</li>
+          </ul>
+          <strong>Exit criterion:</strong> A developer can add a new supported app without editing GUI/core code.
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-id">Phase 5</div>
+        <div>
+          <h3>Theme and wallpaper engine</h3>
+          <ul class="checklist">
+            <li>Semantic theme token format.</li>
+            <li>Theme adapters.</li>
+            <li>Per-application theme opt-in.</li>
+            <li>Wallpaper library/index.</li>
+            <li>Per-monitor wallpaper.</li>
+            <li>Wallpaper → palette integration as optional capability.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-id">Phase 6</div>
+        <div>
+          <h3>Profiles, diagnostics and polish</h3>
+          <ul class="checklist">
+            <li>Profiles and profile switch transactions.</li>
+            <li><code>doctor</code> diagnostics.</li>
+            <li>Crash-safe recovery.</li>
+            <li>Accessibility pass.</li>
+            <li>Keyboard-only navigation.</li>
+            <li>Performance pass.</li>
+            <li>Arch package and AUR-ready packaging.</li>
+          </ul>
+        </div>
+      </div>
+
+      <div class="phase">
+        <div class="phase-id">Phase 7</div>
+        <div>
+          <h3>Post-MVP system integrations</h3>
+          <p>Only after core architecture is stable: NetworkManager, BlueZ, PipeWire, power, user/account metadata, package/default-app conveniences and additional compositors such as Niri or Sway.</p>
+        </div>
+      </div>
+    </section>
+
+    <section id="testing">
+      <h2>17. Testing requirements</h2>
+
+      <h3>Unit tests</h3>
+      <ul>
+        <li>Schema validation.</li>
+        <li>Setting resolution.</li>
+        <li>Theme token mapping.</li>
+        <li>Conflict detection.</li>
+        <li>Snapshot rotation.</li>
+        <li>Path expansion and safe-path checks.</li>
+      </ul>
+
+      <h3>Fixture tests</h3>
+      <p>Every adapter/plugin should include real-world configuration fixtures:</p>
+      <pre><code>fixtures/hyprland/
+├─ minimal.conf
+├─ sourced-files.conf
+├─ comments-heavy.conf
+├─ unusual-formatting.conf
+├─ duplicate-settings.conf
+└─ invalid.conf</code></pre>
+
+      <h3>Transaction tests</h3>
+      <ul>
+        <li>Write succeeds → reload succeeds.</li>
+        <li>Write succeeds → reload fails → rollback occurs.</li>
+        <li>Disk full / permission denied.</li>
+        <li>Plugin crashes during plan/apply.</li>
+        <li>Configuration changed externally between read and apply.</li>
+      </ul>
+
+      <h3>GUI tests</h3>
+      <ul>
+        <li>Keyboard navigation.</li>
+        <li>Search.</li>
+        <li>Validation states.</li>
+        <li>Apply/revert behavior.</li>
+        <li>Unavailable dependency states.</li>
+        <li>Dynamic plugin installation/removal.</li>
+      </ul>
+    </section>
+
+    <section id="security">
+      <h2>18. Security and privilege rules</h2>
+      <ul>
+        <li>Run entirely as the user by default.</li>
+        <li>Never run the whole GUI as root.</li>
+        <li>Use privilege escalation only for a narrowly scoped action that actually requires it.</li>
+        <li>Never interpolate untrusted strings into shell commands.</li>
+        <li>Prefer direct process execution with argument arrays instead of <code>sh -c</code>.</li>
+        <li>Resolve and validate filesystem paths before writes.</li>
+        <li>Plugins must declare capabilities.</li>
+        <li>Third-party plugin code must be considered untrusted.</li>
+        <li>Do not transmit configuration data off-device unless the user explicitly enables a future cloud feature.</li>
+      </ul>
+    </section>
+
+    <section id="release">
+      <h2>19. MVP release criteria</h2>
+      <p>The project is not ready for a public MVP until all of the following are true:</p>
+
+      <ul class="checklist">
+        <li>Installs cleanly on a fresh Arch + Hyprland environment.</li>
+        <li>Launches without requiring root.</li>
+        <li>Detects Hyprland and relevant supported components.</li>
+        <li>Can configure appearance, core Hyprland options, displays and keybindings.</li>
+        <li>Supports at least three app/component plugins.</li>
+        <li>All managed writes are atomic or transactional.</li>
+        <li>Automatic snapshots and rollback work.</li>
+        <li>Externally edited configs are detected instead of silently overwritten.</li>
+        <li>GUI and CLI produce the same resulting state.</li>
+        <li>Application remains usable if one plugin fails.</li>
+        <li>Logs contain enough context to debug failures without exposing secrets.</li>
+        <li>Documentation explains exactly which files the application owns.</li>
+        <li>Uninstalling the program does not destroy the user's original configuration.</li>
+      </ul>
+    </section>
+
+    <section id="agent-rules">
+      <h2>20. Instructions for the implementation agent</h2>
+
+      <div class="callout danger">
+        <strong>These rules override convenience.</strong>
+        If an implementation shortcut conflicts with config safety, reversibility, user ownership or modularity, do not take the shortcut.
+      </div>
+
+      <ol>
+        <li><strong>Work phase-by-phase.</strong> Do not start later modules before the current phase's exit criterion works.</li>
+        <li><strong>Keep the project buildable.</strong> Every meaningful commit should compile and tests should pass.</li>
+        <li><strong>Do not invent APIs silently.</strong> Document important domain interfaces and plugin contracts as they are introduced.</li>
+        <li><strong>No destructive whole-file rewrites.</strong> Use generated overrides or verified lossless transformations.</li>
+        <li><strong>Never modify unrelated settings.</strong> One requested change must produce the narrowest possible mutation.</li>
+        <li><strong>Back up before writes.</strong> Every managed mutation participates in snapshot/transaction infrastructure.</li>
+        <li><strong>Separate domain logic from UI.</strong> The GUI is a client of the Settings Core.</li>
+        <li><strong>Prefer structured process execution.</strong> Avoid shell strings.</li>
+        <li><strong>Do not introduce a background daemon unless required by a demonstrated feature.</strong></li>
+        <li><strong>Do not add cloud services, telemetry or accounts in MVP.</strong></li>
+        <li><strong>Do not bundle opinionated dotfiles.</strong> Example themes/plugins are acceptable; replacing the user's desktop is not.</li>
+        <li><strong>Do not assume Waybar/Kitty/Rofi/etc.</strong> Detect components and populate UI dynamically.</li>
+        <li><strong>Support external edits.</strong> Detect file changes and reconcile/refresh rather than overwriting stale state.</li>
+        <li><strong>Return structured errors.</strong> The UI must be able to distinguish validation, permission, missing dependency, parse, reload and rollback failures.</li>
+        <li><strong>Add tests with each adapter feature.</strong> A new config mutation without regression fixtures is incomplete.</li>
+        <li><strong>Keep public plugin APIs versioned.</strong> Avoid breaking third-party plugins without an explicit migration/version strategy.</li>
+        <li><strong>Document ownership.</strong> Every generated file must have a visible header where the target format permits comments.</li>
+        <li><strong>Implement diagnostics early.</strong> Every adapter should expose detection and health information useful to <code>doctor</code>.</li>
+        <li><strong>Design for future compositor adapters, but implement Hyprland first.</strong> Do not prematurely build abstractions that have no Hyprland use.</li>
+        <li><strong>When uncertain, preserve the user's current working desktop.</strong> Safety is more important than applying a requested cosmetic change.</li>
+      </ol>
+
+      <h3>Required agent progress reporting</h3>
+      <p>At the end of each implementation phase, produce:</p>
+      <ul>
+        <li>What was implemented.</li>
+        <li>Files/modules added or changed.</li>
+        <li>Tests added and their status.</li>
+        <li>Known limitations.</li>
+        <li>Manual verification steps.</li>
+        <li>Whether the phase exit criterion is fully met.</li>
+        <li>Any architecture decision that deviated from this specification and the reason.</li>
+      </ul>
+    </section>
+
+    <section>
+      <h2>21. Definition of long-term success</h2>
+      <p class="lead">
+        The project succeeds when an Arch/Hyprland user can adopt it without surrendering control of their desktop, and a plugin author can add support
+        for another application without changing the core application.
+      </p>
+
+      <div class="grid">
+        <div class="card">
+          <h3>V1 identity</h3>
+          <p>A highly polished Hyprland settings application with safe app configuration integrations.</p>
+        </div>
+        <div class="card">
+          <h3>Long-term identity</h3>
+          <p>A compositor-agnostic settings framework for modular Linux desktops: Hyprland first, potentially Niri, Sway, River, Labwc and others later.</p>
+        </div>
+      </div>
+    </section>
+
+    <div class="footer">
+      This document is intended to be handed directly to a coding agent as the governing specification for project planning and implementation.
+      Product name is intentionally left generic so naming can be decided independently.
+    </div>
+  </main>
+</div>
+</body>
+</html>
