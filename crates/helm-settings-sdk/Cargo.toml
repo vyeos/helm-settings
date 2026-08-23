@@ -7,7 +7,7 @@ license = "MIT OR Apache-2.0"
 repository.workspace = true
 
 [dependencies]
-helm-plugin-protocol = { path = "../helm-plugin-protocol", version = "1.0.0" }
+helm-plugin-protocol = { path = "../helm-plugin-protocol", version = "0.1.0" }
 serde_json.workspace = true
 
 [lints]

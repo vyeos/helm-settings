@@ -7,7 +7,7 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
-helm-model = { path = "../helm-model", version = "1.0.0" }
+helm-model = { path = "../helm-model", version = "0.1.0" }
 serde_json.workspace = true
 thiserror.workspace = true
 

@@ -1,0 +1,199 @@
+<!doctype html>
+<html lang="en">
+<head>
+  <meta charset="utf-8">
+  <meta name="viewport" content="width=device-width, initial-scale=1">
+  <meta name="description" content="Helm is a safe, native settings control plane for Hyprland desktops.">
+  <meta name="theme-color" content="#0b0d12">
+  <meta property="og:title" content="Helm — steer your Hyprland desktop">
+  <meta property="og:description" content="One native interface for settings that remain yours. Verified changes, exact rollback, and no daemon.">
+  <meta property="og:type" content="website">
+  <title>Helm — Safe settings for Hyprland</title>
+  <link rel="icon" href="../data/icons/hicolor/scalable/apps/io.github.vyeos.HelmSettings.svg" type="image/svg+xml">
+  <link rel="stylesheet" href="styles.css">
+</head>
+<body>
+  <a class="skip-link" href="#main">Skip to content</a>
+
+  <header class="site-header">
+    <a class="brand" href="#top" aria-label="Helm home">
+      <img src="../data/icons/hicolor/scalable/apps/io.github.vyeos.HelmSettings.svg" alt="" width="36" height="36">
+      <span>Helm</span>
+    </a>
+    <nav aria-label="Primary navigation">
+      <a href="#features">Features</a>
+      <a href="#safety">Safety</a>
+      <a href="#integrations">Integrations</a>
+      <a href="../docs/index.html">Docs</a>
+    </nav>
+    <a class="button button-small" href="#download">Download <span aria-hidden="true">↘</span></a>
+  </header>
+
+  <main id="main">
+    <section class="hero" id="top">
+      <div class="hero-copy">
+        <a class="release-pill" href="https://github.com/vyeos/helm-settings/releases/tag/v0.1.0">
+          <span class="pulse" aria-hidden="true"></span>
+          Helm 0.1.0 is available
+          <span aria-hidden="true">→</span>
+        </a>
+        <p class="eyebrow">A native control plane for Hyprland</p>
+        <h1>Steer your desktop.<br><span>Keep your config.</span></h1>
+        <p class="hero-lead">One clear place to inspect and change your Hyprland setup—with verified transactions, exact rollback, and zero interest in replacing your dotfiles.</p>
+        <div class="hero-actions">
+          <a class="button button-primary" href="https://github.com/vyeos/helm-settings/releases/download/v0.1.0/helm-settings-0.1.0-1-x86_64.pkg.tar.zst">Download for Arch <span aria-hidden="true">↓</span></a>
+          <a class="button button-ghost" href="https://github.com/vyeos/helm-settings">View source <span aria-hidden="true">↗</span></a>
+        </div>
+        <ul class="hero-facts" aria-label="Product facts">
+          <li><span aria-hidden="true">◆</span> MPL-2.0</li>
+          <li><span aria-hidden="true">◆</span> No daemon</li>
+          <li><span aria-hidden="true">◆</span> No telemetry</li>
+        </ul>
+      </div>
+
+      <div class="product-scene" aria-label="Illustration of the Helm desktop application">
+        <div class="orbit orbit-one"></div>
+        <div class="orbit orbit-two"></div>
+        <div class="app-window">
+          <div class="window-bar">
+            <div class="window-title"><span class="mark">H</span><strong>Helm</strong></div>
+            <div class="window-controls" aria-hidden="true"><i></i><i></i><i></i></div>
+          </div>
+          <div class="window-body">
+            <aside class="app-sidebar">
+              <div class="search-faux">⌕ <span>Search settings</span></div>
+              <div class="side-link active"><span>⌂</span> Overview</div>
+              <div class="side-link"><span>◈</span> Appearance</div>
+              <div class="side-link"><span>▣</span> Desktop</div>
+              <div class="side-link"><span>⌘</span> Applications</div>
+              <div class="side-link"><span>◇</span> Profiles</div>
+              <div class="side-link"><span>↺</span> History</div>
+            </aside>
+            <div class="app-content">
+              <div class="content-head">
+                <div><small>YOUR DESKTOP</small><h2>Everything on course.</h2></div>
+                <span class="status-badge"><i></i> Synced</span>
+              </div>
+              <div class="health-card">
+                <div class="health-score"><strong>8</strong><span>/ 8</span></div>
+                <div><b>Supported components ready</b><p>Helm audited this session without changing configuration.</p></div>
+              </div>
+              <div class="settings-grid">
+                <div class="setting-card accent-card"><span class="setting-icon">◐</span><small>APPEARANCE</small><b>Nord Current</b><em>Applied safely</em></div>
+                <div class="setting-card"><span class="setting-icon">▤</span><small>DISPLAY</small><b>2560 × 1440</b><em>144 Hz · Scale 1×</em></div>
+                <div class="setting-card"><span class="setting-icon">⌨</span><small>KEYBINDINGS</small><b>24 active</b><em>No conflicts</em></div>
+                <div class="setting-card"><span class="setting-icon">↺</span><small>LAST CHANGE</small><b>Theme updated</b><em>Rollback available</em></div>
+              </div>
+            </div>
+          </div>
+        </div>
+        <div class="float-card float-safe"><span>✓</span><div><small>TRANSACTION</small><b>Verified &amp; saved</b></div></div>
+        <div class="float-card float-rollback"><span>↺</span><div><small>SAFETY NET</small><b>Exact rollback ready</b></div></div>
+      </div>
+    </section>
+
+    <section class="trust-strip" aria-label="Supported integrations">
+      <p>Built for the tools already on your desktop</p>
+      <div><span>Hyprland</span><span>Alacritty</span><span>Yazi</span><span>Waybar</span><span>Quickshell</span><span>hyprpaper</span></div>
+    </section>
+
+    <section class="section" id="features">
+      <div class="section-heading">
+        <p class="eyebrow">One helm, the whole desktop</p>
+        <h2>Settings without the scattered files.</h2>
+        <p>Common controls stay approachable. Exact paths, ownership, capabilities, and effects remain visible when you need them.</p>
+      </div>
+      <div class="feature-grid">
+        <article class="feature feature-wide">
+          <div class="feature-copy"><span class="number">01</span><h3>Immediate, verified changes</h3><p>Every edit moves through validation, application, runtime verification, and durable history. Success means the persisted and effective state agree.</p></div>
+          <div class="transaction-rail" aria-label="Transaction stages"><span class="done">Plan <i>✓</i></span><b></b><span class="done">Write <i>✓</i></span><b></b><span class="done">Reload <i>✓</i></span><b></b><span class="current">Verify <i>●</i></span></div>
+        </article>
+        <article class="feature"><span class="number">02</span><div class="feature-symbol">↺</div><h3>History that can undo</h3><p>Restore exact bytes without erasing the record. Every undo is a new, attributable transaction.</p></article>
+        <article class="feature"><span class="number">03</span><div class="feature-symbol">⌁</div><h3>Cooperative by design</h3><p>Owned fragments and lossless targeted edits keep comments, ordering, and unknown syntax intact.</p></article>
+        <article class="feature"><span class="number">04</span><div class="feature-symbol">⌘</div><h3>GUI first. CLI equal.</h3><p>Use the native GTK interface day to day, or the versioned JSON CLI for scripts and repeatable profiles.</p></article>
+      </div>
+    </section>
+
+    <section class="safety-section" id="safety">
+      <div class="safety-copy">
+        <p class="eyebrow">Safety is the architecture</p>
+        <h2>Your configuration stays yours.</h2>
+        <p>Helm is deliberately local, user-scoped, and conservative. It refuses ambiguous changes instead of guessing.</p>
+        <ul class="check-list">
+          <li><span>✓</span><div><b>Conflict-aware writes</b><small>External edits are detected before anything is replaced.</small></div></li>
+          <li><span>✓</span><div><b>Byte-identical rollback</b><small>A failed verification restores every touched target.</small></div></li>
+          <li><span>✓</span><div><b>Sandboxed plugins</b><small>Bubblewrap isolates extensions with no network or home access.</small></div></li>
+          <li><span>✓</span><div><b>Private, local state</b><small>No account, telemetry, root helper, or background service.</small></div></li>
+        </ul>
+        <a class="text-link" href="../docs/safety.html">Read the safety model <span aria-hidden="true">→</span></a>
+      </div>
+      <div class="terminal-card">
+        <div class="terminal-top"><span></span><span></span><span></span><small>helm-settings — transaction</small></div>
+        <pre><code><i>$</i> helm-settings profiles apply work.json
+
+<span class="dim">01</span>  Resolving targets          <span class="green">done</span>
+<span class="dim">02</span>  Comparing fingerprints    <span class="green">done</span>
+<span class="dim">03</span>  Staging exact snapshots   <span class="green">done</span>
+<span class="dim">04</span>  Reloading Hyprland        <span class="green">done</span>
+<span class="dim">05</span>  Verifying effective state <span class="green">done</span>
+
+<span class="green">●</span> Applied profile “Work”
+  Transaction <span class="blue">19af-helm-01</span>
+  Rollback checkpoint retained</code></pre>
+      </div>
+    </section>
+
+    <section class="section integrations" id="integrations">
+      <div class="section-heading compact"><p class="eyebrow">Native integrations</p><h2>Bring the desktop together.</h2><p>Curated adapters understand each tool's real configuration format and ownership boundary.</p></div>
+      <div class="integration-grid">
+        <article><span class="integration-mark">H</span><div><h3>Hyprland</h3><p>Lua settings, displays, bindings, and rules</p></div></article>
+        <article><span class="integration-mark">A</span><div><h3>Alacritty</h3><p>Lossless TOML theme imports</p></div></article>
+        <article><span class="integration-mark">Y</span><div><h3>Yazi</h3><p>Installed flavor discovery and selection</p></div></article>
+        <article><span class="integration-mark">W</span><div><h3>Waybar</h3><p>Managed JSONC and CSS layouts</p></div></article>
+        <article><span class="integration-mark">Q</span><div><h3>Quickshell</h3><p>Cooperative named shell configuration</p></div></article>
+        <article><span class="integration-mark">P</span><div><h3>hyprpaper</h3><p>Validated per-output wallpapers</p></div></article>
+      </div>
+      <p class="migration-note">Using a legacy <code>hyprland.conf</code>? Helm keeps it read-only. Follow the <a href="https://wiki.hypr.land/Configuring/Start/">official Hyprland migration guide <span aria-hidden="true">↗</span></a>.</p>
+    </section>
+
+    <section class="download-section" id="download">
+      <div class="download-copy">
+        <p class="eyebrow">Helm 0.1.0</p>
+        <h2>Ready to take the helm?</h2>
+        <p>Built for Arch Linux on x86-64 with Hyprland 0.56.2 or newer.</p>
+        <div class="command"><code>sudo pacman -S helm-settings</code></div>
+        <details class="repo-setup" id="repository-setup" open>
+          <summary>One-time repository setup</summary>
+          <p>Import and locally trust the published release key:</p>
+          <pre><code>curl -LO https://vyeos.github.io/helm-settings/helm-release-signing-key.asc
+sudo pacman-key --add helm-release-signing-key.asc
+sudo pacman-key --lsign-key F65AE51D27C02E4B</code></pre>
+          <p>Add this repository to <code>/etc/pacman.conf</code>, then run a full system refresh:</p>
+          <pre><code>[helm]
+SigLevel = Required DatabaseOptional
+Server = https://vyeos.github.io/helm-settings/repo/$arch
+
+sudo pacman -Syu</code></pre>
+        </details>
+      </div>
+      <div class="download-card">
+        <div class="package-icon" aria-hidden="true">↓</div>
+        <div><small>ARCH LINUX · X86-64</small><h3>helm-settings 0.1.0</h3><p>Native package · signed checksums</p></div>
+          <a class="button button-primary" href="#repository-setup">Set up repository</a>
+        <div class="asset-links">
+          <a href="https://github.com/vyeos/helm-settings/releases/download/v0.1.0/helm-settings-0.1.0.tar.gz">Source archive</a>
+          <a href="https://github.com/vyeos/helm-settings/releases/download/v0.1.0/SHA256SUMS">Checksums</a>
+          <a href="https://github.com/vyeos/helm-settings/releases/download/v0.1.0/helm-release-signing-key.asc">Signing key</a>
+        </div>
+      </div>
+    </section>
+  </main>
+
+  <footer class="site-footer">
+    <a class="brand" href="#top"><img src="../data/icons/hicolor/scalable/apps/io.github.vyeos.HelmSettings.svg" alt="" width="30" height="30"><span>Helm</span></a>
+    <p>Safe settings for desktops that remain yours.</p>
+    <nav aria-label="Footer navigation"><a href="../docs/index.html">Documentation</a><a href="https://github.com/vyeos/helm-settings">GitHub</a><a href="../docs/signing.html">Verify release</a><a href="../LICENSES/MPL-2.0.txt">MPL-2.0</a></nav>
+    <small>Built for Hyprland. No telemetry. No account. No daemon.</small>
+  </footer>
+</body>
+</html>

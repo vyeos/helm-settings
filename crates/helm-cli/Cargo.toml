@@ -8,13 +8,13 @@ repository.workspace = true
 
 [dependencies]
 clap.workspace = true
-helm-core = { path = "../helm-core", version = "1.0.0" }
-helm-adapter-applications = { path = "../../adapters/applications", version = "1.0.0" }
-helm-adapter-bars = { path = "../../adapters/bars", version = "1.0.0" }
-helm-adapter-desktop = { path = "../../adapters/desktop", version = "1.0.0" }
-helm-adapter-hyprland = { path = "../../adapters/hyprland", version = "1.0.0" }
-helm-transaction = { path = "../helm-transaction", version = "1.0.0" }
-helm-plugin-host = { path = "../helm-plugin-host", version = "1.0.0" }
+helm-core = { path = "../helm-core", version = "0.1.0" }
+helm-adapter-applications = { path = "../../adapters/applications", version = "0.1.0" }
+helm-adapter-bars = { path = "../../adapters/bars", version = "0.1.0" }
+helm-adapter-desktop = { path = "../../adapters/desktop", version = "0.1.0" }
+helm-adapter-hyprland = { path = "../../adapters/hyprland", version = "0.1.0" }
+helm-transaction = { path = "../helm-transaction", version = "0.1.0" }
+helm-plugin-host = { path = "../helm-plugin-host", version = "0.1.0" }
 serde.workspace = true
 serde_json.workspace = true
 toml_edit.workspace = true

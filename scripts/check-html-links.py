@@ -17,7 +17,11 @@ class Links(HTMLParser):
             self.links.extend(value for key, value in attrs if key == "href" and value)
 
 
-pages = sorted(Path("docs").rglob("*.html")) + [Path("README.html")]
+pages = (
+    sorted(Path("docs").rglob("*.html"))
+    + sorted(Path("website").rglob("*.html"))
+    + [Path("README.html")]
+)
 for page in pages:
     parser = Links()
     parser.feed(page.read_text(encoding="utf-8"))
