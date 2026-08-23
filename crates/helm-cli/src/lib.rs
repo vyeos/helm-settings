@@ -10,6 +10,7 @@ use std::{
 use clap::{Parser, Subcommand, ValueEnum};
 use helm_adapter_applications::{alacritty, theme, yazi};
 use helm_adapter_bars::{Layout as BarLayout, quickshell, waybar};
+use helm_adapter_desktop::profile::Profile;
 use helm_adapter_hyprland::{HyprlandRuntime, ProcessRuntime, detect_generation};
 use helm_core::{DiscoveryService, SystemProbe, XdgPaths, foundation_catalog};
 use helm_transaction::{Engine, FileChange, Fingerprint, TransactionPlan};
@@ -62,6 +63,11 @@ enum Command {
         #[command(subcommand)]
         command: BarsCommand,
     },
+    /// Validate or atomically apply a desired-state profile.
+    Profiles {
+        #[command(subcommand)]
+        command: ProfilesCommand,
+    },
 }
 
 #[derive(Debug, Subcommand)]
@@ -102,6 +108,12 @@ enum BarsCommand {
     Status,
     ApplyWaybar,
     ApplyQuickshell,
+}
+
+#[derive(Debug, Subcommand)]
+enum ProfilesCommand {
+    Validate { path: std::path::PathBuf },
+    Apply { path: std::path::PathBuf },
 }
 
 #[derive(Serialize)]
@@ -191,7 +203,126 @@ where
         Command::Hyprland { command } => run_hyprland(command, cli.output, output),
         Command::Applications { command } => run_applications(command, cli.output, output),
         Command::Bars { command } => run_bars(command, cli.output, output),
+        Command::Profiles { command } => run_profiles(&command, cli.output, output),
     }
+}
+
+fn run_profiles(
+    command: &ProfilesCommand,
+    format: OutputFormat,
+    output: &mut impl Write,
+) -> Result<(), String> {
+    let path = match &command {
+        ProfilesCommand::Validate { path } | ProfilesCommand::Apply { path } => path,
+    };
+    let source = std::fs::read_to_string(path)
+        .map_err(|error| format!("cannot read profile {}: {error}", path.display()))?;
+    let profile: Profile =
+        serde_json::from_str(&source).map_err(|error| format!("invalid profile JSON: {error}"))?;
+    profile.validate().map_err(|error| error.to_string())?;
+    match command {
+        ProfilesCommand::Validate { .. } => write_value(format, output, &profile, || {
+            format!("Profile `{}` is valid\n", profile.name)
+        }),
+        ProfilesCommand::Apply { .. } => apply_profile(&profile, format, output),
+    }
+}
+
+fn apply_profile(
+    profile: &Profile,
+    format: OutputFormat,
+    output: &mut impl Write,
+) -> Result<(), String> {
+    let paths = XdgPaths::from_environment().map_err(str::to_owned)?;
+    for wallpaper in &profile.wallpapers {
+        if !wallpaper.path.is_file() {
+            return Err(format!(
+                "wallpaper does not exist or is not a file: {}",
+                wallpaper.path.display()
+            ));
+        }
+    }
+    let mimeapps_path = paths.config_home.join("mimeapps.list");
+    let hyprpaper_path = paths.config_home.join("hypr/hyprpaper.conf");
+    let hyprland_path = paths.config_home.join("hypr/hyprland.lua");
+    let helm_init_path = paths.config_home.join("hypr/helm-settings/init.lua");
+    let files = profile
+        .render_files(
+            &paths.config_home,
+            &read_optional_text(&mimeapps_path)?,
+            &read_optional_text(&hyprpaper_path)?,
+            &read_optional_text(&hyprland_path)?,
+            &read_optional_text(&helm_init_path)?,
+        )
+        .map_err(|error| error.to_string())?;
+    let expected = files
+        .iter()
+        .map(|file| (file.path.clone(), file.content.clone()))
+        .collect::<Vec<_>>();
+    let changes = files
+        .into_iter()
+        .map(|file| write_change(&file.path, file.content.into_bytes()))
+        .collect::<Result<Vec<_>, _>>()?;
+    let transaction = TransactionPlan {
+        summary: format!("Apply profile: {}", profile.name),
+        changes,
+    };
+    let result = default_engine()?
+        .apply(&transaction, || {
+            for (path, expected) in &expected {
+                let actual = std::fs::read_to_string(path)
+                    .map_err(|error| format!("cannot verify {}: {error}", path.display()))?;
+                if &actual != expected {
+                    return Err(format!("{} changed during profile apply", path.display()));
+                }
+            }
+            verify_active_profile(profile)
+        })
+        .map_err(|error| error.to_string())?;
+    write_value(format, output, &result, || {
+        format!(
+            "Applied profile `{}` as transaction {}\n",
+            profile.name, result.id
+        )
+    })
+}
+
+fn verify_active_profile(profile: &Profile) -> Result<(), String> {
+    if std::env::var_os("HYPRLAND_INSTANCE_SIGNATURE").is_none() {
+        return Ok(());
+    }
+    if !profile.window_rules.is_empty() {
+        let status = std::process::Command::new("hyprctl")
+            .arg("reload")
+            .status()
+            .map_err(|error| format!("cannot reload Hyprland: {error}"))?;
+        if !status.success() {
+            return Err("Hyprland rejected the profile reload".into());
+        }
+        let errors = std::process::Command::new("hyprctl")
+            .arg("configerrors")
+            .output()
+            .map_err(|error| format!("cannot inspect Hyprland config errors: {error}"))?;
+        if !errors.status.success() || !String::from_utf8_lossy(&errors.stdout).trim().is_empty() {
+            return Err("Hyprland reported configuration errors".into());
+        }
+    }
+    for wallpaper in &profile.wallpapers {
+        let argument = format!(
+            "{}, {}, {}",
+            wallpaper.monitor,
+            wallpaper.path.display(),
+            wallpaper.fit.as_str()
+        );
+        let status = std::process::Command::new("hyprctl")
+            .args(["hyprpaper", "wallpaper", &argument])
+            .status()
+            .map_err(|error| format!("cannot apply wallpaper: {error}"))?;
+        if !status.success() {
+            return Err("hyprpaper rejected the wallpaper".into());
+        }
+    }
+    Ok(())
 }
 
 fn run_bars(

@@ -614,7 +614,7 @@ checksum = "2304e00983f87ffb38b55b444b5e3b60a884b5d30c0fca7d82fe33449bbe55ea"
 
 [[package]]
 name = "helm-adapter-applications"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "serde",
  "tempfile",
@@ -624,7 +624,7 @@ dependencies = [
 
 [[package]]
 name = "helm-adapter-bars"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "helm-adapter-applications",
  "serde",
@@ -633,8 +633,17 @@ dependencies = [
 ]
 
 [[package]]
+name = "helm-adapter-desktop"
+version = "0.7.0"
+dependencies = [
+ "serde",
+ "serde_json",
+ "thiserror",
+]
+
+[[package]]
 name = "helm-adapter-hyprland"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "helm-model",
  "helm-transaction",
@@ -646,11 +655,12 @@ dependencies = [
 
 [[package]]
 name = "helm-cli"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "clap",
  "helm-adapter-applications",
  "helm-adapter-bars",
+ "helm-adapter-desktop",
  "helm-adapter-hyprland",
  "helm-core",
  "helm-transaction",
@@ -661,7 +671,7 @@ dependencies = [
 
 [[package]]
 name = "helm-core"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "helm-model",
  "serde_json",
@@ -670,7 +680,7 @@ dependencies = [
 
 [[package]]
 name = "helm-gui"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "glib",
  "glib-build-tools",
@@ -685,7 +695,7 @@ dependencies = [
 
 [[package]]
 name = "helm-model"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -693,7 +703,7 @@ dependencies = [
 
 [[package]]
 name = "helm-plugin-protocol"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "serde",
  "serde_json",
@@ -701,7 +711,7 @@ dependencies = [
 
 [[package]]
 name = "helm-settings"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "helm-cli",
  "helm-gui",
@@ -709,14 +719,14 @@ dependencies = [
 
 [[package]]
 name = "helm-settings-sdk"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "helm-plugin-protocol",
 ]
 
 [[package]]
 name = "helm-transaction"
-version = "0.6.0"
+version = "0.7.0"
 dependencies = [
  "blake3",
  "rusqlite",

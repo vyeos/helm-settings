@@ -11,6 +11,7 @@ clap.workspace = true
 helm-core = { path = "../helm-core" }
 helm-adapter-applications = { path = "../../adapters/applications" }
 helm-adapter-bars = { path = "../../adapters/bars" }
+helm-adapter-desktop = { path = "../../adapters/desktop" }
 helm-adapter-hyprland = { path = "../../adapters/hyprland" }
 helm-transaction = { path = "../helm-transaction" }
 serde.workspace = true

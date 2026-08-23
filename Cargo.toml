@@ -3,6 +3,7 @@ resolver = "3"
 members = [
   "adapters/applications",
   "adapters/bars",
+  "adapters/desktop",
   "adapters/hyprland",
   "crates/helm-model",
   "crates/helm-core",
@@ -15,7 +16,7 @@ members = [
 ]
 
 [workspace.package]
-version = "0.6.0"
+version = "0.7.0"
 edition = "2024"
 rust-version = "1.97"
 authors = ["vyeos <rudranpatel0980@gmail.com>"]

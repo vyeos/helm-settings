@@ -88,11 +88,12 @@ fn build_window(application: &adw::Application) {
     );
     add_desktop_page(&stack);
     add_applications_page(&stack);
-    add_placeholder_page(
+    add_catalog_page(
         &stack,
         "profiles",
         "Profiles",
-        "Atomic desired-state profiles",
+        "Atomic wallpaper, startup, defaults, and window-rule state",
+        &["profiles"],
     );
     add_history_page(&stack);
     add_placeholder_page(

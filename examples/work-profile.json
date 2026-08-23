@@ -1,0 +1,15 @@
+{
+  "name": "Work",
+  "defaults": {
+    "text/plain": "org.gnome.TextEditor.desktop",
+    "x-scheme-handler/https": "firefox.desktop"
+  },
+  "startup": [
+    {
+      "id": "io.github.vyeos.HelmSettings-example",
+      "name": "Example background agent",
+      "exec": "example-agent --quiet",
+      "enabled": false
+    }
+  ]
+}

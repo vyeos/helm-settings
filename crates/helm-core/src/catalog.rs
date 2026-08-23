@@ -2,6 +2,12 @@ use helm_model::{ApplyBehavior, Constraints, Risk, SettingDefinition, SettingId,
 
 #[must_use]
 pub fn foundation_catalog() -> Vec<SettingDefinition> {
+    let mut catalog = desktop_catalog();
+    catalog.extend(product_catalog());
+    catalog
+}
+
+fn desktop_catalog() -> Vec<SettingDefinition> {
     vec![
         setting(
             "hyprland.general.gaps_in",
@@ -49,6 +55,83 @@ pub fn foundation_catalog() -> Vec<SettingDefinition> {
             sensitive: false,
             writable: true,
         },
+    ]
+}
+
+fn product_catalog() -> Vec<SettingDefinition> {
+    vec![
+        setting(
+            "appearance.theme",
+            "appearance",
+            "Desktop theme",
+            "Semantic palette shared by supported applications",
+            SettingKind::Choice,
+            Constraints::unconstrained(),
+        ),
+        setting(
+            "appearance.wallpaper",
+            "wallpaper",
+            "Wallpaper",
+            "Per-output image and fit mode through hyprpaper",
+            SettingKind::Path,
+            Constraints::unconstrained(),
+        ),
+        setting(
+            "applications.alacritty.theme",
+            "applications",
+            "Alacritty theme",
+            "Managed imported terminal palette",
+            SettingKind::Choice,
+            Constraints::unconstrained(),
+        ),
+        setting(
+            "applications.yazi.flavor",
+            "applications",
+            "Yazi flavor",
+            "Dark and light Yazi flavor selection",
+            SettingKind::Choice,
+            Constraints::unconstrained(),
+        ),
+        setting(
+            "bars.layout",
+            "applications",
+            "Bar layout",
+            "Managed Waybar or cooperative Quickshell layout",
+            SettingKind::Object,
+            Constraints::unconstrained(),
+        ),
+        setting(
+            "desktop.startup",
+            "profiles",
+            "Startup applications",
+            "User-scoped freedesktop autostart entries",
+            SettingKind::Object,
+            Constraints::unconstrained(),
+        ),
+        setting(
+            "desktop.defaults",
+            "profiles",
+            "Default applications",
+            "MIME handlers in the user mimeapps.list",
+            SettingKind::Object,
+            Constraints::unconstrained(),
+        ),
+        setting(
+            "hyprland.window_rules",
+            "profiles",
+            "Window rules",
+            "Named Lua rules matched by class or title",
+            SettingKind::Object,
+            Constraints::unconstrained(),
+        ),
+        setting(
+            "profiles.active",
+            "profiles",
+            "Active profile",
+            "Atomically apply a complete desired desktop state",
+            SettingKind::Choice,
+            Constraints::unconstrained(),
+        ),
     ]
 }
 
