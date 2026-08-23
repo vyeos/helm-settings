@@ -7,8 +7,10 @@ license.workspace = true
 repository.workspace = true
 
 [dependencies]
+clap.workspace = true
 helm-core = { path = "../helm-core" }
+serde.workspace = true
+serde_json.workspace = true
 
 [lints]
 workspace = true
-

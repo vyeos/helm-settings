@@ -8,8 +8,8 @@ repository.workspace = true
 
 [dependencies]
 helm-model = { path = "../helm-model" }
+serde_json.workspace = true
 thiserror.workspace = true
 
 [lints]
 workspace = true
-
