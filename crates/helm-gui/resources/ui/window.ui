@@ -1,0 +1,45 @@
+<?xml version="1.0" encoding="UTF-8"?>
+<interface>
+  <requires lib="gtk" version="4.22"/>
+  <requires lib="Adw" version="1.9"/>
+  <object class="AdwApplicationWindow" id="window">
+    <property name="title">Helm</property>
+    <property name="default-width">1080</property>
+    <property name="default-height">720</property>
+    <property name="width-request">720</property>
+    <property name="height-request">480</property>
+    <child>
+      <object class="GtkBox">
+        <property name="orientation">vertical</property>
+        <child>
+          <object class="AdwHeaderBar">
+            <property name="title-widget">
+              <object class="GtkBox">
+                <property name="spacing">8</property>
+                <child><object class="GtkImage"><property name="icon-name">preferences-system-symbolic</property></object></child>
+                <child><object class="GtkLabel"><property name="label">Helm</property><property name="css-classes">title</property></object></child>
+              </object>
+            </property>
+          </object>
+        </child>
+        <child>
+          <object class="GtkPaned">
+            <property name="shrink-start-child">false</property>
+            <property name="resize-start-child">false</property>
+            <property name="position">250</property>
+            <child type="start">
+              <object class="GtkBox">
+                <property name="orientation">vertical</property>
+                <property name="spacing">8</property>
+                <property name="margin-start">12</property><property name="margin-end">12</property><property name="margin-top">12</property><property name="margin-bottom">12</property>
+                <child><object class="GtkSearchEntry" id="search"><property name="placeholder-text">Search settings</property></object></child>
+                <child><object class="GtkStackSidebar" id="sidebar"><property name="vexpand">true</property></object></child>
+              </object>
+            </child>
+            <child type="end"><object class="GtkStack" id="stack"><property name="hexpand">true</property><property name="vexpand">true</property><property name="transition-type">crossfade</property></object></child>
+          </object>
+        </child>
+      </object>
+    </child>
+  </object>
+</interface>

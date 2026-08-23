@@ -5,10 +5,17 @@ edition.workspace = true
 rust-version.workspace = true
 license.workspace = true
 repository.workspace = true
+build = "build.rs"
 
 [dependencies]
 helm-core = { path = "../helm-core" }
+helm-transaction = { path = "../helm-transaction" }
+gtk.workspace = true
+adw.workspace = true
+glib.workspace = true
+
+[build-dependencies]
+glib-build-tools.workspace = true
 
 [lints]
 workspace = true
-

@@ -1,0 +1,4 @@
+.overview-title { font-size: 1.75rem; font-weight: 700; }
+.module-card { padding: 12px; border-radius: 12px; background: alpha(currentColor, 0.04); }
+.status-available { color: @success_color; }
+.status-missing { opacity: 0.65; }

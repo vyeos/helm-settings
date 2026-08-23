@@ -8,7 +8,7 @@ use std::{
 };
 
 use clap::{Parser, Subcommand, ValueEnum};
-use helm_core::{DiscoveryService, SystemProbe, foundation_catalog};
+use helm_core::{DiscoveryService, SystemProbe, XdgPaths, foundation_catalog};
 use helm_transaction::Engine;
 use serde::Serialize;
 
@@ -150,20 +150,8 @@ where
 }
 
 fn default_engine() -> Result<Engine, String> {
-    let home = std::env::var_os("HOME").ok_or_else(|| "HOME is not set".to_owned())?;
-    let config = std::env::var_os("XDG_CONFIG_HOME").map_or_else(
-        || std::path::PathBuf::from(&home).join(".config"),
-        std::path::PathBuf::from,
-    );
-    let data = std::env::var_os("XDG_DATA_HOME").map_or_else(
-        || std::path::PathBuf::from(&home).join(".local/share"),
-        std::path::PathBuf::from,
-    );
-    let state = std::env::var_os("XDG_STATE_HOME").map_or_else(
-        || std::path::PathBuf::from(home).join(".local/state"),
-        std::path::PathBuf::from,
-    );
-    Engine::open(state.join("helm-settings"), vec![config, data]).map_err(|error| error.to_string())
+    let paths = XdgPaths::from_environment().map_err(str::to_owned)?;
+    Engine::open(paths.helm_state(), paths.writable_roots()).map_err(|error| error.to_string())
 }
 
 fn write_value<T: Serialize>(
